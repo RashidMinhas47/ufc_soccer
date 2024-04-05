@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "254411742953",
+    "project_id": "ufc-soccer-app",
+    "storage_bucket": "ufc-soccer-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:254411742953:android:729546ac249d90cad19a78",
+        "android_client_info": {
+          "package_name": "com.example.ufc_soccer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApTnHxuhXc0vaPk3IB-rZNoN_wzecWVgM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
