@@ -7,10 +7,12 @@ class GameModel {
   int maxPlayer;
   bool remixVoting;
   int timeCountdown;
+  String id;
   List<String> joinedPlayerUids;
   List<String> joinedPlayerNames;
 
   GameModel({
+    required this.id,
     required this.date,
     required this.joinedPlayerNames,
     required this.joinedPlayerUids,

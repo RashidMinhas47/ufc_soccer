@@ -29,6 +29,7 @@ final gameListProvider = StreamProvider<List<GameModel>>((ref) {
       final data = doc.data();
       return GameModel(
         // id: data[ID],
+        id: data[ID],
         joinedPlayerNames: List.from(data[JOINEDPLAYERNAMES]),
         joinedPlayerUids: List.from(data[JOINEDPLAYERS]),
         name: data[ADMINNAME] ?? "",
