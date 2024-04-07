@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ufc_soccer/providers/game_info_providers.dart';
+import 'package:ufc_soccer/providers/manage_app_provider.dart';
 import 'package:ufc_soccer/providers/setup_game_provider.dart';
 import 'package:ufc_soccer/providers/text_controllers.dart';
 import 'package:ufc_soccer/screens/admin/setup_game.dart';
@@ -27,6 +28,10 @@ class GameInfoScreen extends ConsumerWidget {
     final gameInfoPro = ref.watch(gameInfoProvider);
     final size = MediaQuery.of(context).size;
     final setGamePro = ref.watch(setupGameProvider);
+    ref.watch(appSettingsProvider).fetchDropdownItems();
+    String dropdownValue = 'Select Game';
+
+    final manageAppProvider = ref.watch(appSettingsProvider);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBars.appBar("Game Admin", "Game Info"),
@@ -35,9 +40,26 @@ class GameInfoScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const CustomDDButton(
-              hintText: "Select Game",
+            DropdownButton<String>(
+              value: manageAppProvider.selectGame,
+              onChanged: (String? newValue) {
+                manageAppProvider.selectedGame(newValue);
+              },
+              items: manageAppProvider.playedGames
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(
+                    value,
+                    style: GoogleFonts.poppins(),
+                    overflow: TextOverflow.fade,
+                  ),
+                );
+              }).toList(),
             ),
+            // const CustomDDButton(
+            //   hintText: "Select Game",
+            // ),
             const GameVideoPlayer(),
             TextFeildWithBorder(
                 controller: urlCtr, hintText: 'Enter YouTube URL'),

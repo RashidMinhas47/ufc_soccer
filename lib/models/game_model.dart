@@ -6,13 +6,15 @@ class GameModel {
   String manager;
   int maxPlayer;
   bool remixVoting;
-  int timeCountdown;
+  int remainingTime;
   String id;
   List<String> joinedPlayerUids;
   List<String> joinedPlayerNames;
+  // List<String> voters;
 
   GameModel({
     required this.id,
+    // required this.voters,
     required this.date,
     required this.joinedPlayerNames,
     required this.joinedPlayerUids,
@@ -22,6 +24,6 @@ class GameModel {
     required this.manager,
     required this.maxPlayer,
     required this.remixVoting,
-    required this.timeCountdown,
+    required this.remainingTime,
   });
 }

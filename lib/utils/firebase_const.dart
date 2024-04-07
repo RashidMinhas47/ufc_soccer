@@ -23,6 +23,7 @@ const String MANAGERS = 'MANAGERS';
 const String MAXPLAYER = 'MAXPLAYER';
 const String REMIXVOTING = 'REMIXVOTING';
 // const String TIMEPERIOD = 'TIMEPERIOD';
+const String TOBEPLAYED = 'TOBEPLAYED';
 const String GAMES = 'GAMES';
 const String VOTEFORYES = 'VOTEFORYES';
 const String VOTEFORNO = 'VOTEFORYESNO';

@@ -14,12 +14,12 @@ import 'package:ufc_soccer/utils/constants.dart';
 import 'package:ufc_soccer/widgets/custom_large_btn.dart';
 import 'package:ufc_soccer/widgets/widget_tester.dart';
 
-class NextGameScreen extends ConsumerWidget {
+class NextGameScreen extends StatelessWidget {
   static const String screen = '/NextGameScreen';
   const NextGameScreen({super.key});
 
   @override
-  Widget build(BuildContext context, ref) {
+  Widget build(BuildContext context) {
     final List<Widget> joinLeavePages = [
       JoinGameScreen(),
       // VoteForNextGame(),
@@ -37,26 +37,30 @@ class NextGameScreen extends ConsumerWidget {
           ),
           centerTitle: true,
           actions: [
-            IconButton(
-                onPressed: () {
-                  ref.read(signInProvider).signOutUser(context);
-                },
-                icon: const Icon(Icons.settings))
+            Consumer(builder: (context, ref, child) {
+              return IconButton(
+                  onPressed: () {
+                    ref.read(signInProvider).signOutUser(context);
+                  },
+                  icon: const Icon(Icons.settings));
+            })
           ],
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
             children: [
-              AnimatedListTile(),
+              const AnimatedListTile(),
               Expanded(
-                child: PageView.builder(
-                    scrollBehavior: ScrollBehavior()
-                        .copyWith(physics: NeverScrollableScrollPhysics()),
-                    controller: ref.watch(homePagesControler),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: joinLeavePages.length,
-                    itemBuilder: (context, index) => joinLeavePages[index]),
+                child: Consumer(builder: (context, ref, child) {
+                  return PageView.builder(
+                      scrollBehavior: const ScrollBehavior().copyWith(
+                          physics: const NeverScrollableScrollPhysics()),
+                      controller: ref.watch(homePagesControler),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: joinLeavePages.length,
+                      itemBuilder: (context, index) => joinLeavePages[index]);
+                }),
               )
             ],
           ),

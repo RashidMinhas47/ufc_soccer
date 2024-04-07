@@ -12,6 +12,35 @@ final setupGameProvider = ChangeNotifierProvider((ref) => SetupGameProvider());
 
 class SetupGameProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool isVoted = false;
+  void setVote() {
+    isVoted = true;
+    notifyListeners();
+  }
+
+  Stream<List<String>> getVotersStream(String gameId) {
+    return _firestore
+        .collection('GAMES')
+        .doc(gameId)
+        .snapshots()
+        .map((snapshot) {
+      final data = snapshot.data();
+      if (data == null || !data.containsKey('VOTERS')) {
+        return []; // Return an empty list if no voters are found
+      }
+      return List<String>.from(data['VOTERS']);
+    });
+  }
+
+  Stream<bool> isUserAlreadyVotedStream(String gameId, String userId) {
+    return getVotersStream(gameId).map((voters) {
+      if (voters != null) {
+        return voters.contains(userId);
+      } else {
+        return false;
+      }
+    });
+  }
 
   // String? date;
   // String? time;
@@ -42,16 +71,34 @@ class SetupGameProvider extends ChangeNotifier {
 
   Future<void> voteForYes(String gameId) async {
     try {
+      List<String> userUids = [];
+      try {
+        final DocumentSnapshot gameDoc =
+            await _firestore.collection('GAMES').doc(gameId).get();
+        final Map<String, dynamic>? data =
+            gameDoc.data() as Map<String, dynamic>?;
+        if (data == null || !data.containsKey(VOTERS)) {
+          userUids = []; // Return an empty list if no voters are found
+        }
+        userUids = List<String>.from(data?[VOTERS]);
+      } catch (error) {
+        print('Error fetching voters: $error');
+      }
       final auth = FirebaseAuth.instance;
       User user = auth.currentUser!;
       String userId = user.uid;
       String userName = user.displayName ??
           'Unknown User'; // Use a default name if display name is not available
-      await _firestore.collection(GAMES).doc(gameId).update({
-        VOTEFORYES: FieldValue.arrayUnion([
-          {UID: userId, FULLNAME: userName}
-        ])
-      });
+
+      if (!userUids.contains(userId)) {
+        userUids.add(userId);
+        await _firestore.collection(GAMES).doc(gameId).update({
+          VOTEFORYES: FieldValue.arrayUnion([
+            {UID: userId, FULLNAME: userName}
+          ]),
+          VOTERS: userUids
+        });
+      }
       // await _firestore.collection(GAMES).get().then((querySnapshot) {
       //   querySnapshot.docs.forEach((doc) async {
       //     await _firestore.collection(GAMES).doc(doc.id).update({
@@ -68,16 +115,37 @@ class SetupGameProvider extends ChangeNotifier {
 
   Future<void> voteForNo(String gameId) async {
     try {
+      List<String> userUids = [];
+      try {
+        final DocumentSnapshot gameDoc =
+            await _firestore.collection('GAMES').doc(gameId).get();
+        final Map<String, dynamic>? data =
+            gameDoc.data() as Map<String, dynamic>?;
+        if (data == null || !data.containsKey(VOTERS)) {
+          userUids = []; // Return an empty list if no voters are found
+        }
+        userUids = List<String>.from(data?[VOTERS]);
+      } catch (error) {
+        print('Error fetching voters: $error');
+      }
       final auth = FirebaseAuth.instance;
       User user = auth.currentUser!;
+      // List<String> voterNames = [];
+      // if (!voterNames.contains(user.displayName)) {
+      //   voterNames.add(user.displayName!);
+      // }
       String userId = user.uid;
       String userName = user.displayName ??
           'Unknown User'; // Use a default name if display name is not available
-      await _firestore.collection(GAMES).doc(gameId).update({
-        VOTEFORYES: FieldValue.arrayUnion([
-          {UID: userId, FULLNAME: userName}
-        ])
-      });
+      if (!userUids.contains(userId)) {
+        userUids.add(userId);
+        await _firestore.collection(GAMES).doc(gameId).update({
+          VOTEFORNO: FieldValue.arrayUnion([
+            {UID: userId, FULLNAME: userName}
+          ]),
+          VOTERS: userUids
+        });
+      }
       // await _firestore.collection(GAMES).get().then((querySnapshot) {
       //   querySnapshot.docs.forEach((doc) async {
       //     await _firestore.collection(GAMES).doc(doc.id).update({
@@ -109,7 +177,7 @@ class SetupGameProvider extends ChangeNotifier {
       notifyListeners();
       // Calculate end time of game setup
       DateTime setupEndTime =
-          DateTime.now().add(Duration(hours: timeCountdown));
+          DateTime.now().add(Duration(seconds: timeCountdown));
 
       if (remixVoting) {
         // await _firestore.collection(ADMINUIDS).add({
@@ -160,7 +228,7 @@ class SetupGameProvider extends ChangeNotifier {
           JOINEDPLAYERNAMES: <String>[],
           VOTETIMER: setupEndTime,
 
-          VOTERS: voters,
+          VOTERS: <String>[],
           // PLAYERUIDS: playerUIDs,
         });
       } else {
@@ -203,7 +271,7 @@ class SetupGameProvider extends ChangeNotifier {
         });
       }
       // Start a timer to update remaining time
-      Timer.periodic(Duration(seconds: 1), (timer) {
+      Timer.periodic(const Duration(seconds: 1), (timer) {
         // Calculate remaining time until setup end
         Duration remainingTime = setupEndTime.difference(DateTime.now());
 
@@ -226,6 +294,35 @@ class SetupGameProvider extends ChangeNotifier {
       notifyListeners();
     } catch (error) {
       print('Error setting up new game: $error');
+    }
+  }
+
+  void setupGameListener() {
+    _firestore.collection('GAMES').snapshots().listen((snapshot) {
+      snapshot.docs.forEach((doc) {
+        int remainingTime = doc.data()['REMAININGTIME'];
+        if (remainingTime == 0) {
+          // Game has been finalized, move it to FINALIZEDGAMES collection
+          finalizeGame(doc);
+        }
+      });
+    });
+  }
+
+  void finalizeGame(DocumentSnapshot gameDoc) async {
+    try {
+      // Get data from the game document
+      Map<String, dynamic> gameData = gameDoc.data() as Map<String, dynamic>;
+
+      // Add additional logic or data transformation as needed
+
+      // Create a new document in FINALIZEDGAMES collection
+      await _firestore.collection('FINALIZEDGAMES').add(gameData);
+
+      // Optionally, delete the document from GAMES collection
+      await gameDoc.reference.delete();
+    } catch (error) {
+      print('Error finalizing game: $error');
     }
   }
 }

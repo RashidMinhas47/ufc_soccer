@@ -16,11 +16,17 @@ class AppSettingsProvider extends ChangeNotifier {
   List<String> _managers = [];
   String? _selectedLocation;
   String? _selectedManager;
+  List<String> _playedGames = [];
+  String? _selectGame;
+
   // List<String> _availableLocations = [];
 
   List<String> get locations => _locations;
   // FirebaseFirestore get firebaseFirestore => _firestore;
   List<String> get managers => _managers;
+  List<String> get playedGames => _playedGames;
+  String? get selectGame => _selectGame;
+
   // List<String> get availableLocations => _availableLocations;
   String appAccessCode = '';
   bool isUpdation = false;
@@ -29,6 +35,11 @@ class AppSettingsProvider extends ChangeNotifier {
 
   void selectLocation(value) {
     _selectedLocation = value;
+    notifyListeners();
+  }
+
+  void selectedGame(value) {
+    _selectGame = value;
     notifyListeners();
   }
 
@@ -126,42 +137,18 @@ class AppSettingsProvider extends ChangeNotifier {
       print('Error updating app settings: $error');
     }
   }
-  // Future<void> updateAppSettings() async {
-  //   try {
-  //     final settingsDoc = _firestore.collection(APPSETTINGS).doc(SETTINGS);
 
-  //     // Check if the settings document exists
-  //     // final settingsSnapshot = await settingsDoc.get();
-  //     // if (!settingsSnapshot.exists) {
-  //     //   // Create the settings document if it doesn't exist
-  //     //   await settingsDoc.set({});
-  //     // }
+  Future<void> fetchDropdownItems() async {
+    try {
+      final QuerySnapshot snapshot =
+          await _firestore.collection(TOBEPLAYED).get();
 
-  //     // Update locations if not empty
-  //     if (_locations.isNotEmpty) {
-  //       print(_locations);
-  //       await settingsDoc.update({
-  //         LOCATIONS: _locations,
-  //       });
-  //     }
+      _playedGames =
+          snapshot.docs.map((doc) => '${doc.id} - ${doc.data()}').toList();
 
-  //     // Update managers if not empty
-  //     if (_managers.isNotEmpty) {
-  //       await settingsDoc.update({
-  //         MANAGERS: _managers,
-  //       });
-  //     }
-
-  //     // Update app access code if not empty
-  //     if (appAccessCode.isNotEmpty) {
-  //       await settingsDoc.update({
-  //         APPACCESSCODE: appAccessCode,
-  //       });
-  //     }
-
-  //     print('App settings updated successfully!');
-  //   } catch (error) {
-  //     print('Error updating app settings: $error');
-  //   }
-  // }
+      notifyListeners();
+    } catch (error) {
+      print('Error fetching dropdown items: $error');
+    }
+  }
 }

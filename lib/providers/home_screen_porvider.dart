@@ -29,6 +29,7 @@ final gameListProvider = StreamProvider<List<GameModel>>((ref) {
       final data = doc.data();
       return GameModel(
         // id: data[ID],
+        // voters: List.from(data[VOTERS]),
         id: data[ID],
         joinedPlayerNames: List.from(data[JOINEDPLAYERNAMES]),
         joinedPlayerUids: List.from(data[JOINEDPLAYERS]),
@@ -39,7 +40,7 @@ final gameListProvider = StreamProvider<List<GameModel>>((ref) {
         manager: data[MANAGERS] ?? '',
         maxPlayer: data[MAXPLAYER] ?? 0,
         remixVoting: data[REMIXVOTING] ?? false,
-        timeCountdown: data[TIMECOUNTDOWN] ?? 0,
+        remainingTime: data[REMAININGTIME] ?? 0,
       );
     }).toList();
   });

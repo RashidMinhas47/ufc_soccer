@@ -36,7 +36,7 @@ class JoinGameScreen extends ConsumerWidget {
                       List<String>.generate(games.length, (i) {
                     return "Join Game";
                   });
-                  print(joinGameLabel);
+                  // print(joinGameLabel);
                   final leaveGameLabel =
                       List<String>.generate(games.length, (i) {
                     return "Leave Game";
@@ -49,7 +49,7 @@ class JoinGameScreen extends ConsumerWidget {
                     final isJoined = game.joinedPlayerUids.contains(userUid);
                     isJoinedList.add(isJoined);
                     // gamePro.addJoinedList(isJoined);
-                    print(isJoined);
+                    // print(isJoined);
                   }
                   return Column(
                     children: [

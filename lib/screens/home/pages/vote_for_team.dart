@@ -156,6 +156,8 @@ import 'package:ufc_soccer/providers/auth_providers.dart';
 import 'package:ufc_soccer/providers/home_screen_porvider.dart';
 import 'package:ufc_soccer/providers/players_list_provider.dart';
 import 'package:ufc_soccer/providers/setup_game_provider.dart';
+import 'package:ufc_soccer/providers/user_data.dart';
+import 'package:ufc_soccer/screens/home/pages/join_&_leave_game.dart';
 import 'package:ufc_soccer/utils/constants.dart';
 import 'package:ufc_soccer/utils/firebase_const.dart';
 import 'package:ufc_soccer/widgets/custom_large_btn.dart';
@@ -170,6 +172,7 @@ class VoteForNextGame extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     final gamePro = ref.watch(setupGameProvider);
+    final userData = ref.watch(userDataProvider);
     // final countdownTimerProvider = StateProvider<int>((ref) {
     //   // Set the initial countdown time based on game.remixTime in hours
     //   return game.timeCountdown * 3600;
@@ -220,76 +223,125 @@ class VoteForNextGame extends ConsumerWidget {
             PlayersListTable(
               playerNames: game.joinedPlayerNames,
             ),
-            Consumer(
-              builder: (context, ref, _) {
-                // final countdownTime =
-                //     ref.watch(countdownTimerProvider.notifier).state;
-                // final hours = countdownTime ~/ 3600;
-                // final minutes = (countdownTime % 3600) ~/ 60;
-                // final seconds = countdownTime % 60;
-                return StreamBuilder<DocumentSnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection(GAMES)
-                      .doc(game.id)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      // Calculate elapsed time since game setup
-                      final setupStartTime = snapshot.data!.get(VOTETIMER);
-                      final currentTime = DateTime.now();
-                      final elapsedDuration =
-                          currentTime.difference(setupStartTime.toDate());
+            game.remainingTime == 0
+                ? Padding(
+                    padding: const EdgeInsets.all(13.0),
+                    child: Text(
+                      "Time is up you did'nt vote.",
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                      ),
+                    ),
+                  )
+                : Column(
+                    children: [
+                      Consumer(
+                        builder: (context, ref, _) {
+                          // final countdownTime =
+                          //     ref.watch(countdownTimerProvider.notifier).state;
+                          // final hours = countdownTime ~/ 3600;
+                          // final minutes = (countdownTime % 3600) ~/ 60;
+                          // final seconds = countdownTime % 60;
+                          return StreamBuilder<DocumentSnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection(GAMES)
+                                .doc(game.id)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                // Calculate elapsed time since game setup
+                                final setupStartTime =
+                                    snapshot.data!.get(VOTETIMER);
+                                final currentTime = DateTime.now();
+                                final elapsedDuration = currentTime
+                                    .difference(setupStartTime.toDate());
 
-                      // Calculate remaining time for setup
-                      final setupDuration = Duration(minutes: 0);
+                                // Calculate remaining time for setup
+                                const setupDuration = Duration(minutes: 0);
 
-                      final remainingDuration = setupDuration - elapsedDuration;
-                      FirebaseFirestore.instance
-                          .collection(GAMES)
-                          .doc(game.id)
-                          .update({REMAININGTIME: remainingDuration.inSeconds});
-                      return CountdownTimerWidget(
-                        remainingTimeInSeconds: remainingDuration
-                            .inSeconds, // Pass your remaining time in seconds here
-                      );
-                      // Text(
-                      //     'Remaining Time: ${remainingDuration.inMinutes} minutes');
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  },
-                );
+                                final remainingDuration =
+                                    (setupDuration.inSeconds -
+                                                elapsedDuration.inSeconds) >=
+                                            0
+                                        ? (setupDuration.inSeconds -
+                                            elapsedDuration.inSeconds)
+                                        : 0;
+                                FirebaseFirestore.instance
+                                    .collection(GAMES)
+                                    .doc(game.id)
+                                    .update({REMAININGTIME: remainingDuration});
+                                return CountdownTimerWidget(
+                                  remainingTimeInSeconds: game
+                                      .remainingTime, // Pass your remaining time in seconds here
+                                );
+                                // Text(
+                                //     'Remaining Time: ${remainingDuration.inMinutes} minutes');
+                              } else {
+                                return const CircularProgressIndicator();
+                              }
+                            },
+                          );
 
-                //  Text(
-                //   'Remix Team: not defiend yet',
-                //   style: GoogleFonts.poppins(fontSize: 20),
-                // );
-              },
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                LargeFlatButton(
-                  onPressed: () {
-                    gamePro.voteForYes(game.id);
-                  },
-                  size: const Size(120, 60),
-                  fontColor: kPrimaryColor,
-                  label: "Yes",
-                  backgroundColor: Colors.transparent,
-                ),
-                const SizedBox(width: 20),
-                LargeFlatButton(
-                  onPressed: () {
-                    gamePro.voteForNo(game.id);
-                  },
-                  size: const Size(120, 60),
-                  fontColor: kPrimaryColor,
-                  label: "No",
-                  backgroundColor: Colors.transparent,
-                ),
-              ],
-            ),
+                          //  Text(
+                          //   'Remix Team: not defiend yet',
+                          //   style: GoogleFonts.poppins(fontSize: 20),
+                          // );
+                        },
+                      ),
+                      game.remixVoting
+                          ? StreamBuilder(
+                              stream: gamePro.isUserAlreadyVotedStream(
+                                  game.id, userData.userUid),
+                              builder: (context, snapshot) {
+                                final value = snapshot.data;
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return progressWidget;
+                                } else {
+                                  return Container(
+                                    child: snapshot.hasData && value!
+                                        ? Padding(
+                                            padding: const EdgeInsets.all(13.0),
+                                            child: Text(
+                                              "A vote in favor of keeping teams has been selected.",
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                          )
+                                        : Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              LargeFlatButton(
+                                                onPressed: () {
+                                                  gamePro.voteForYes(game.id);
+                                                },
+                                                size: const Size(120, 60),
+                                                fontColor: kPrimaryColor,
+                                                label: "Yes",
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                              ),
+                                              const SizedBox(width: 20),
+                                              LargeFlatButton(
+                                                onPressed: () {
+                                                  gamePro.voteForNo(game.id);
+                                                },
+                                                size: const Size(120, 60),
+                                                fontColor: kPrimaryColor,
+                                                label: "No",
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                              ),
+                                            ],
+                                          ),
+                                  );
+                                }
+                              })
+                          : const SizedBox.shrink(),
+                    ],
+                  )
           ],
         ),
       ),

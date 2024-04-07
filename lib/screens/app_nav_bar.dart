@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ufc_soccer/providers/game_changer_provider.dart';
 import 'package:ufc_soccer/screens/home/home_screen.dart';
 import 'package:ufc_soccer/screens/profile_screens/game_videos_screen.dart';
 import 'package:ufc_soccer/screens/profile_screens/profile_screen.dart';
@@ -23,13 +24,11 @@ class _AppNavBarState extends ConsumerState<AppNavBar> {
     ProfileScreen(),
   ];
   int currentIndex = 0;
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(gameServiceProvider).listenToGameChanges();
+
     return Scaffold(
       body: screens.elementAt(currentIndex),
       bottomNavigationBar: BottomNavigationBar(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ufc_soccer/models/game_model.dart';
 import 'package:ufc_soccer/screens/admin/game_admin.dart';
 import 'package:ufc_soccer/screens/admin/game_info.dart';
 import 'package:ufc_soccer/screens/admin/setup_game.dart';
@@ -9,7 +8,6 @@ import 'package:ufc_soccer/screens/admin/manage_app.dart';
 import 'package:ufc_soccer/screens/admin/update_player_stats.dart';
 import 'package:ufc_soccer/screens/app_nav_bar.dart';
 import 'package:ufc_soccer/screens/auth_check_screen.dart';
-import 'package:ufc_soccer/screens/home/pages/vote_for_team.dart';
 import 'package:ufc_soccer/screens/home/home_screen.dart';
 import 'package:ufc_soccer/screens/profile_screens/profile_screen.dart';
 import 'package:ufc_soccer/screens/profile_screens/edit_profile_screen.dart';
