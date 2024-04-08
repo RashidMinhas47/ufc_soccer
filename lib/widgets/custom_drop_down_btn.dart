@@ -5,13 +5,21 @@ class CustomDDButton extends StatelessWidget {
   const CustomDDButton({
     super.key,
     required this.hintText,
+    this.parantValue,
+    this.childValue,
+    this.onChanged,
+    this.items,
   });
   final String hintText;
+  final String? parantValue;
+  final String? childValue;
+  final ValueChanged<String?>? onChanged;
+  final List<DropdownMenuItem<String>>? items;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
       ),
@@ -23,13 +31,8 @@ class CustomDDButton extends StatelessWidget {
           hintText: hintText,
           hintStyle: GoogleFonts.poppins(),
         ),
-        items: ['Option 1', 'Option 2', 'Option 3'].map((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value, style: GoogleFonts.poppins()),
-          );
-        }).toList(),
-        onChanged: (String? value) {},
+        items: items,
+        onChanged: onChanged,
       ),
     );
   }

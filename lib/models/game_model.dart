@@ -10,6 +10,7 @@ class GameModel {
   String id;
   List<String> joinedPlayerUids;
   List<String> joinedPlayerNames;
+  String title;
   // List<String> voters;
 
   GameModel({
@@ -25,5 +26,6 @@ class GameModel {
     required this.maxPlayer,
     required this.remixVoting,
     required this.remainingTime,
+    required this.title,
   });
 }

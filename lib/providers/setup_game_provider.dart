@@ -74,7 +74,7 @@ class SetupGameProvider extends ChangeNotifier {
       List<String> userUids = [];
       try {
         final DocumentSnapshot gameDoc =
-            await _firestore.collection('GAMES').doc(gameId).get();
+            await _firestore.collection(GAMES).doc(gameId).get();
         final Map<String, dynamic>? data =
             gameDoc.data() as Map<String, dynamic>?;
         if (data == null || !data.containsKey(VOTERS)) {
@@ -118,7 +118,7 @@ class SetupGameProvider extends ChangeNotifier {
       List<String> userUids = [];
       try {
         final DocumentSnapshot gameDoc =
-            await _firestore.collection('GAMES').doc(gameId).get();
+            await _firestore.collection(GAMES).doc(gameId).get();
         final Map<String, dynamic>? data =
             gameDoc.data() as Map<String, dynamic>?;
         if (data == null || !data.containsKey(VOTERS)) {
@@ -167,7 +167,8 @@ class SetupGameProvider extends ChangeNotifier {
       required String manager,
       required int maxPlayers,
       required bool remixVoting,
-      required int timeCountdown}) async {
+      required int timeCountdown,
+      required String title}) async {
     try {
       String newKey = Uuid().v4();
 
@@ -177,43 +178,12 @@ class SetupGameProvider extends ChangeNotifier {
       notifyListeners();
       // Calculate end time of game setup
       DateTime setupEndTime =
-          DateTime.now().add(Duration(seconds: timeCountdown));
+          DateTime.now().add(Duration(minutes: timeCountdown));
 
       if (remixVoting) {
-        // await _firestore.collection(ADMINUIDS).add({
-        //   UID: user.uid,
-        //   FULLNAME: user.displayName,
-        //   EMAIL: user.email,
-        // });
-        // final totalPlayers = await _firestore.collection(USERS)
-        // try {
-        // Fetch all documents from the USERS collection
-        // final QuerySnapshot querySnapshot =
-        //     await _firestore.collection(USERS).get();
-
-        // Extract the fullName property from each document and store in a list
-        // List<String> playerUIDs =
-        //     querySnapshot.docs.map((doc) => doc[UID] as String).toList();
-        // List<String> playerNames =
-        //     querySnapshot.docs.map((doc) => doc[FULLNAME] as String).toList();
-
-        // List<Map<String, dynamic>> joinedPlayersData = [];
-
-        // for (int i = 0; i < playerUIDs.length; i++) {
-        //   Map<String, dynamic> playerData = {
-        //     PLAYERUIDS: playerUIDs[i],
-        //     FULLNAME: playerNames[i]
-        //   };
-        //   joinedPlayersData.add(playerData);
-        // }
-        // Now 'fullNames' contains all the fullName values from the USERS collection
-        // print('PlayerUids: $playerUIDs');
-// } catch (error) {
-//   print('Error retrieving full names: $error');
-// }
-
         await _firestore.collection(GAMES).doc(newKey).set({
           ADMINNAME: user.displayName,
+          TITLE: title,
           ID: newKey,
           IMAGEURL: "",
           DATE: date,
@@ -254,6 +224,8 @@ class SetupGameProvider extends ChangeNotifier {
 
         print('Player Uids: $playerUIDs');
         await _firestore.collection(GAMES).doc(newKey).set({
+          TITLE: title,
+
           ADMINNAME: user.displayName,
           ID: newKey,
           DATE: date,

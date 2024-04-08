@@ -4,9 +4,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ufc_soccer/providers/game_info_providers.dart';
 import 'package:ufc_soccer/providers/text_controllers.dart';
+import 'package:ufc_soccer/providers/update_player_stats_provider.dart';
 import 'package:ufc_soccer/screens/admin/setup_game.dart';
+import 'package:ufc_soccer/screens/profile_screens/edit_profile_screen.dart';
 import 'package:ufc_soccer/utils/button_styles.dart';
 import 'package:ufc_soccer/utils/constants.dart';
+import 'package:ufc_soccer/utils/firebase_const.dart';
 import 'package:ufc_soccer/utils/image_urls.dart';
 import 'package:ufc_soccer/widgets/custom_drop_down_btn.dart';
 import 'package:ufc_soccer/widgets/custom_large_btn.dart';
@@ -26,52 +29,113 @@ class UpdatePlayerStats extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     final size = MediaQuery.of(context).size;
-    final gameInfoState = ref.watch(gameInfoProvider);
+    final gameInfoPro = ref.watch(gameInfoProvider);
     final urlCtr = ref.watch(urlCtrProvider);
+    ref.watch(gameInfoProvider).fetchDropdownItems();
+    final uPStatsPro = ref.watch(updatePlayerStatsProvider);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBars.appBar("Game Admin", "Update Player Stats"),
-      body: Padding(
-        padding: kPadd20,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const CustomDDButton(hintText: 'Select Game'),
-            const CustomDDButton(
-              hintText: "Team Played",
-            ),
-            ScoreInputWidget(
-              label: 'Goals Scored This Game',
-              ctrText: gameInfoState.goalsCurrentGame.toString(),
-              incrementTap: () => gameInfoState.goalsCurrentGameAdd(),
-              decrementTap: () => gameInfoState.goalsCurrentGameRemove(),
-            ),
-            TextFeildWithBorder(
-              controller: urlCtr,
-              hintText: 'Enter Highlight YouTube URL',
-            ),
-            OutlinedButton(
-              onPressed: () {},
-              style: ButtonStyles.smallOutlineStyle(),
-              child: Text(
-                "Add",
-                style: GoogleFonts.poppins(color: kPrimaryColor),
+      body: uPStatsPro.isloading
+          ? prograssWidget
+          : Padding(
+              padding: kPadd20,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  CustomDDButton(
+                    hintText: "Select Game",
+                    parantValue: gameInfoPro.selectGame,
+                    onChanged: (String? newValue) {
+                      gameInfoPro.selectedGame(newValue);
+                      gameInfoPro.fetchSelectedPlayers(newValue ?? 'Game 1');
+                    },
+                    items: gameInfoPro.playedGames
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                          style: GoogleFonts.poppins(),
+                          overflow: TextOverflow.fade,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  Consumer(builder: (context, ref, child) {
+                    // if (gameInfoPro.selectPlayer == null) {
+                    //   return SizedBox.shrink();
+                    // } else {
+                    return CustomDDButton(
+                      hintText: "Select Player",
+                      parantValue: gameInfoPro.selectPlayer,
+                      onChanged: (String? newValue) {
+                        gameInfoPro.selectedPlayer(newValue);
+                        gameInfoPro.selectedPlayerUid(
+                            newValue, gameInfoPro.selectedUids);
+                        gameInfoPro
+                            .fetchSelectedPlayers(gameInfoPro.selectGame!);
+                      },
+                      items: gameInfoPro.selectedPlayers
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(
+                            value,
+                            style: GoogleFonts.poppins(),
+                            overflow: TextOverflow.fade,
+                          ),
+                        );
+                      }).toList(),
+                    );
+                    // }
+                  }),
+                  ScoreInputWidget(
+                    label: 'Goals Scored This Game',
+                    ctrText: gameInfoPro.goalsCurrentGame.toString(),
+                    incrementTap: () => gameInfoPro.goalsCurrentGameAdd(),
+                    decrementTap: () => gameInfoPro.goalsCurrentGameRemove(),
+                  ),
+                  TextFeildWithBorder(
+                    controller: urlCtr,
+                    hintText: 'Enter Highlight YouTube URL',
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      uPStatsPro.addVideoUrls(urlCtr.text);
+                    },
+                    style: ButtonStyles.smallOutlineStyle(),
+                    child: Text(
+                      "Add",
+                      style: GoogleFonts.poppins(color: kPrimaryColor),
+                    ),
+                  ),
+                  for (int i = 0; i < uPStatsPro.videoUrls.length; i++)
+                    buildLinkTiles("${i + 1} Link"),
+                  LargeFlatButton(
+                    onPressed: () {
+                      // List<Map<String, dynamic>> userData = [];
+
+                      uPStatsPro.updateUserData(
+                          gameInfoPro.selectUid!,
+                          [
+                            {
+                              GAME_TITLE: gameInfoPro.selectGame,
+                              GOALS_SCORED: gameInfoPro.goalsCurrentGame,
+                              VIDEO_URL: uPStatsPro.videoUrls
+                            }
+                          ],
+                          context);
+                    },
+                    size: size,
+                    fontColor: kPrimaryColor,
+                    label: 'Update Player Stats',
+                    backgroundColor: Colors.white.withOpacity(0),
+                  ),
+                ],
               ),
             ),
-            buildLinkTiles("First Link"),
-            buildLinkTiles("Second Link"),
-            buildLinkTiles("Third Link"),
-            LargeFlatButton(
-              onPressed: () {},
-              size: size,
-              fontColor: kPrimaryColor,
-              label: 'Update Player Stats',
-              backgroundColor: Colors.white.withOpacity(0),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

@@ -11,3 +11,5 @@ final appAccessCodeCtrl =
     Provider<TextEditingController>((ref) => TextEditingController());
 
 final homePagesControler = ChangeNotifierProvider((ref) => PageController());
+final gameTitleCtrPro =
+    Provider<TextEditingController>((ref) => TextEditingController());
