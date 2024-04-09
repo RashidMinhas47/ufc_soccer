@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ufc_soccer/screens/admin/game_admin.dart';
 import 'package:ufc_soccer/screens/admin/game_info.dart';
@@ -20,6 +21,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp]); // Allow only portrait orientation
+
   runApp(const ProviderScope(child: MyApp()));
 }
 

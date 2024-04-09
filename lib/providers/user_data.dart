@@ -7,13 +7,7 @@ import 'package:ufc_soccer/screens/app_nav_bar.dart';
 import 'package:ufc_soccer/screens/authentication_screen.dart';
 import 'package:ufc_soccer/utils/firebase_const.dart';
 
-final userDataProvider = ChangeNotifierProvider.autoDispose((ref) {
-  final provider = UserDataProvider();
-  // Call fetchUserData() directly if needed for initial data
-  // provider.fetchUserData(); // Uncomment if necessary
-  provider.fetchUserData();
-  return provider;
-});
+final userDataProvider = ChangeNotifierProvider((ref) => UserDataProvider());
 
 // final userDataProvider = ChangeNotifierProvider((ref) => UserDataProvider());
 final nickNameCtr = ChangeNotifierProvider((ref) => TextEditingController());
@@ -21,15 +15,19 @@ final jersyController =
     ChangeNotifierProvider((ref) => TextEditingController());
 
 class UserDataProvider with ChangeNotifier {
-  UserDataProvider() {
-    fetchUserData();
-  }
+  final _firestore = FirebaseFirestore.instance;
+
   bool userUpdation = false;
   String _nickname = '';
   List<String> _positions = [];
   String _imageUrl = '';
   String _fullName = '';
   int _jersyNumber = 0;
+
+  int? totalGoals;
+  int? totalGames;
+  double? aveGoals;
+  bool isUpdation = false;
 
   List<Map<String, dynamic>> _postionsData = [
     {
@@ -61,6 +59,29 @@ class UserDataProvider with ChangeNotifier {
     return userName;
   }
 
+  // Future<void> fetchUserStatsData() async {
+  //   isUpdation = true;
+  //   notifyListeners();
+  //   try {
+  //     final user = FirebaseAuth.instance.currentUser;
+  //     final settingsDocRef = _firestore.collection(USERS).doc(user!.uid);
+
+  //     // Fetch existing settings data
+  //     final settingsDocSnapshot = await settingsDocRef.get();
+  //     final data = settingsDocSnapshot.data();
+  //     final getLocations = Map<String, dynamic>.from(data?[PLAYER_STATS] ?? []);
+  //     totalGames = getLocations[TOTAL_GAMES];
+  //     totalGoals = getLocations[TOTAL_GOALS];
+  //     aveGoals = getLocations[AVERAGE_GOALS];
+
+  //     notifyListeners();
+  //   } catch (error) {
+  //     print('Error fetching app settings: $error');
+  //   }
+  //   isUpdation = false;
+  //   notifyListeners();
+  // }
+
   String get nickname => _nickname;
   List<String> get positions => _positions;
   String get imageUrl => _imageUrl;
@@ -82,10 +103,67 @@ class UserDataProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+//  Future<void> fetchUserData(String userId) async {
+//     try {
+//       // Get reference to the user document in the USERS collection
+//       DocumentReference userRef =
+//           FirebaseFirestore.instance.collection('USERS').doc(userId);
+
+//       // Get the user document snapshot
+//       DocumentSnapshot userSnapshot = await userRef.get();
+
+//       // Check if the document exists
+//       if (userSnapshot.exists) {
+//         // Cast the result of data() to Map<String, dynamic>
+//         Map<String, dynamic>? userData =
+//             userSnapshot.data() as Map<String, dynamic>?;
+
+//         if (userData != null) {
+//           // Update class variables with values from user data
+//           totalGames = userData['PLAYER_STATS']['TOTAL_GAMES'] ?? 0;
+//           totalGoals = userData['PLAYER_STATS']['TOTAL_GOALS'] ?? 0;
+//           aveGoals = userData['PLAYER_STATS']['AVE_GOALS'] ?? 0.0;
+//         } else {
+//           print('User data is null');
+//         }
+//       } else {
+//         print('User document does not exist');
+//       }
+//     } catch (error) {
+//       print('Error fetching user data: $error');
+//     }
+//   }
 
   // Fetch user data from Firestore
   Future<void> fetchUserData() async {
     try {
+      print(
+          "..............##############.......#######$userUid################>>>>>>>>>>>>>>");
+      // Get reference to the user document in the USERS collection
+      // Get reference to the user document in the USERS collection
+      DocumentReference userRef =
+          FirebaseFirestore.instance.collection(USERS).doc(userUid);
+
+      // Get the user document snapshot
+      DocumentSnapshot userSnapshot = await userRef.get();
+
+      Map<String, dynamic>? userData =
+          userSnapshot.data() as Map<String, dynamic>;
+
+      if (userData != null && userData.containsKey(PLAYER_STATS)) {
+        Map<String, dynamic>? playerStats = userData[PLAYER_STATS];
+        // Now you can access the 'PLAYER_STATS' map safely
+        if (playerStats != null) {
+          // Update class variables with values from PLAYER_STATS
+          totalGames = playerStats[TOTAL_GAMES] ?? 0;
+          totalGoals = playerStats[TOTAL_GOALS] ?? 0;
+          aveGoals = playerStats[AVERAGE_GOALS].roundToDouble() ?? 0.0;
+        } else {
+          print('PLAYER_STATS data is null');
+        }
+      } else {
+        print('PLAYER_STATS field not found or user data is null');
+      }
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         DocumentSnapshot<Map<String, dynamic>> userData =
@@ -100,6 +178,7 @@ class UserDataProvider with ChangeNotifier {
           _imageUrl = userData[IMAGEURL].toString();
           _fullName = userData[FULLNAME].toString();
           _jersyNumber = int.parse(userData[JERSYNUMBER].toString());
+
           // ScaffoldMessenger.of(context)
           //     .showSnackBar(SnackBar(content: Text("Welcome")));
           notifyListeners();
@@ -180,369 +259,4 @@ class UserDataProvider with ChangeNotifier {
     _postionsData[index][VALUE] = !_postionsData[index][VALUE];
     notifyListeners();
   }
-
-  // void updateProfile() async {
-  //   try {
-  //     // Update user data in Firestore
-  //     await _cloudFirestore
-  //         .collection(USERS)
-  //         .doc(_auth.currentUser!.uid)
-  //         .update({
-  //       NICKNAME: nickname,
-  //       JERSYNUMBER: _jersyNumber,
-  //       POSITIONS: getSelectedPositions(),
-  //     });
-  //     print('User data updated successfully!');
-  //   } catch (error) {
-  //     print('Error updating user data: $error');
-  //   }
-  // }
 }
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:ufc_soccer/screens/app_nav_bar.dart';
-// import 'package:ufc_soccer/screens/authentication_screen.dart';
-// import 'package:ufc_soccer/utils/firebase_const.dart';
-
-// final nickNameCtr = ChangeNotifierProvider((ref) => TextEditingController());
-// final jersyController =
-//     ChangeNotifierProvider((ref) => TextEditingController());
-
-// final userDataProvider =
-//     StateNotifierProvider((ref) => UserDataProviderNotifier());
-
-// class UserDataProviderNotifier extends StateNotifier<UserData> {
-//   UserDataProviderNotifier() : super(UserData());
-
-//   void fetchUserData(BuildContext context) async {
-//     try {
-//       User? user = FirebaseAuth.instance.currentUser;
-//       if (user != null) {
-//         DocumentSnapshot<Map<String, dynamic>> userData =
-//             await FirebaseFirestore.instance
-//                 .collection(USERS)
-//                 .doc(user.uid)
-//                 .get();
-//         if (userData.exists) {
-//           state = UserData.fromMap(userData.data()!);
-//         } else {
-//           // Handle the case where user data does not exist
-//         }
-//       }
-//     } catch (e) {
-//       print('Error fetching user data: $e');
-//     }
-//   }
-
-//   void updateUserProfile({
-//     required String nickname,
-//     required List<String> positions,
-//     required String imageUrl,
-//     required int jersyNumber,
-//     required BuildContext context,
-//   }) async {
-//     try {
-//       state = state.copyWith(
-//         nickname: nickname,
-//         positions: positions,
-//         imageUrl: imageUrl,
-//         jersyNumber: jersyNumber,
-//       );
-
-//       User? user = FirebaseAuth.instance.currentUser;
-//       if (user != null) {
-//         await FirebaseFirestore.instance
-//             .collection(USERS)
-//             .doc(user.uid)
-//             .update({
-//           NICKNAME: nickname,
-//           POSITIONS: positions,
-//           JERSYNUMBER: jersyNumber,
-//         });
-//       }
-//       Navigator.pop(context);
-//     } catch (e) {
-//       print('Error updating user profile: $e');
-//     }
-//   }
-
-//   void updateNickname(String newNickname) {
-//     state = state.copyWith(nickname: newNickname);
-//   }
-
-//   void updateJerseyNumber(int newJerseyNumber) {
-//     state = state.copyWith(jersyNumber: newJerseyNumber);
-//   }
-
-//   void togglePosition(int index) {
-//     final List<Map<String, dynamic>> updatedPositions = [
-//       ...state.positionsList
-//     ];
-//     updatedPositions[index][VALUE] = !updatedPositions[index][VALUE];
-//     state = state.copyWith(positionsList: updatedPositions);
-//   }
-// }
-
-// class UserData {
-//   UserData({
-//     this.userUpdation = false,
-//     this.nickname = '',
-//     this.positions = const [],
-//     this.imageUrl = '',
-//     this.fullName = '',
-//     this.jersyNumber = 0,
-//     this.positionsList = const [
-//       {POSITIONS: "Forward", VALUE: false},
-//       {POSITIONS: "Striker", VALUE: false},
-//       {POSITIONS: "Mid Field", VALUE: false},
-//       {POSITIONS: "Defense", VALUE: false},
-//       {POSITIONS: "Goalie", VALUE: false},
-//     ],
-//   });
-
-//   final bool userUpdation;
-//   final String nickname;
-//   final List<String> positions;
-//   final String imageUrl;
-//   final String fullName;
-//   final int jersyNumber;
-//   final List<Map<String, dynamic>> positionsList;
-
-//   UserData copyWith({
-//     bool? userUpdation,
-//     String? nickname,
-//     List<String>? positions,
-//     String? imageUrl,
-//     String? fullName,
-//     int? jersyNumber,
-//     List<Map<String, dynamic>>? positionsList,
-//   }) {
-//     return UserData(
-//       userUpdation: userUpdation ?? this.userUpdation,
-//       nickname: nickname ?? this.nickname,
-//       positions: positions ?? this.positions,
-//       imageUrl: imageUrl ?? this.imageUrl,
-//       fullName: fullName ?? this.fullName,
-//       jersyNumber: jersyNumber ?? this.jersyNumber,
-//       positionsList: positionsList ?? this.positionsList,
-//     );
-//   }
-
-//   factory UserData.fromMap(Map<String, dynamic> map) {
-//     return UserData(
-//       userUpdation: false,
-//       nickname: map[NICKNAME] ?? '',
-//       positions: List<String>.from(map[POSITIONS] ?? []),
-//       imageUrl: map[IMAGEURL] ?? '',
-//       fullName: map[FULLNAME] ?? '',
-//       jersyNumber: map[JERSYNUMBER] ?? 0,
-//     );
-//   }
-// }
-
-// // class UserData {
-// //   UserData({
-// //     this.userUpdation = false,
-// //     this.nickname = '',
-// //     this.positions = const [],
-// //     this.imageUrl = '',
-// //     this.fullName = '',
-// //     this.jersyNumber = 0,
-// //     this.positionsList = const [
-// //       {POSITIONS: "Forward", VALUE: false},
-// //       {POSITIONS: "Striker", VALUE: false},
-// //       {POSITIONS: "Mid Field", VALUE: false},
-// //       {POSITIONS: "Defense", VALUE: false},
-// //       {POSITIONS: "Goalie", VALUE: false},
-// //     ],
-// //   });
-
-// //   final bool userUpdation;
-// //   final String nickname;
-// //   final List<String> positions;
-// //   final String imageUrl;
-// //   final String fullName;
-// //   final int jersyNumber;
-// //   final List<Map<String, dynamic>> positionsList;
-
-// //   UserData copyWith({
-// //     bool? userUpdation,
-// //     String? nickname,
-// //     List<String>? positions,
-// //     String? imageUrl,
-// //     String? fullName,
-// //     int? jersyNumber,
-// //     List<Map<String, dynamic>>? positionsList,
-// //   }) {
-// //     return UserData(
-// //       userUpdation: userUpdation ?? this.userUpdation,
-// //       nickname: nickname ?? this.nickname,
-// //       positions: positions ?? this.positions,
-// //       imageUrl: imageUrl ?? this.imageUrl,
-// //       fullName: fullName ?? this.fullName,
-// //       jersyNumber: jersyNumber ?? this.jersyNumber,
-// //       positionsList: positionsList ?? this.positionsList,
-// //     );
-// //   }
-
-// //   factory UserData.fromMap(Map<String, dynamic> map) {
-// //     return UserData(
-// //       userUpdation: false,
-// //       nickname: map[NICKNAME] ?? '',
-// //       positions: List<String>.from(map[POSITIONS] ?? []),
-// //       imageUrl: map[IMAGEURL] ?? '',
-// //       fullName: map[FULLNAME] ?? '',
-// //       jersyNumber: map[JERSYNUMBER] ?? 0,
-// //     );
-// //   }
-// // }
-
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:ufc_soccer/utils/firebase_const.dart';
-
-// final userDataProvider =
-//     StateNotifierProvider<UserDataProviderNotifier, UserData>((ref) {
-//   return UserDataProviderNotifier();
-// });
-
-// final nickNameCtr = Provider((ref) => TextEditingController());
-// final jersyController = Provider((ref) => TextEditingController());
-
-// class UserDataProviderNotifier extends StateNotifier<UserData> {
-//   UserDataProviderNotifier() : super(UserData());
-
-//   void fetchUserData(BuildContext context) async {
-//     try {
-//       User? user = FirebaseAuth.instance.currentUser;
-//       if (user != null) {
-//         DocumentSnapshot<Map<String, dynamic>> userData =
-//             await FirebaseFirestore.instance
-//                 .collection(USERS)
-//                 .doc(user.uid)
-//                 .get();
-//         if (userData.exists) {
-//           state = UserData.fromMap(userData.data()!);
-//         } else {
-//           // Handle the case where user data does not exist
-//         }
-//       }
-//     } catch (e) {
-//       print('Error fetching user data: $e');
-//     }
-//   }
-
-//   void updateUserProfile({
-//     required String nickname,
-//     required List<String> positions,
-//     required String imageUrl,
-//     required int jersyNumber,
-//     required BuildContext context,
-//   }) async {
-//     try {
-//       state = state.copyWith(
-//         nickname: nickname,
-//         positions: positions,
-//         imageUrl: imageUrl,
-//         jersyNumber: jersyNumber,
-//       );
-
-//       User? user = FirebaseAuth.instance.currentUser;
-//       if (user != null) {
-//         await FirebaseFirestore.instance
-//             .collection(USERS)
-//             .doc(user.uid)
-//             .update({
-//           NICKNAME: nickname,
-//           POSITIONS: positions,
-//           JERSYNUMBER: jersyNumber,
-//         });
-//       }
-//       Navigator.pop(context);
-//     } catch (e) {
-//       print('Error updating user profile: $e');
-//     }
-//   }
-
-//   void updateNickname(String newNickname) {
-//     state = state.copyWith(nickname: newNickname);
-//   }
-
-//   void updateJerseyNumber(int newJerseyNumber) {
-//     state = state.copyWith(jersyNumber: newJerseyNumber);
-//   }
-
-//   void togglePosition(int index) {
-//     final List<Map<String, dynamic>> updatedPositions = [
-//       ...state.positionsList
-//     ];
-//     updatedPositions[index][VALUE] = !updatedPositions[index][VALUE];
-//     state = state.copyWith(positionsList: updatedPositions);
-//   }
-// }
-
-// class UserData {
-//   UserData({
-//     this.userUpdation = false,
-//     this.nickname = '',
-//     this.userUid = '',
-//     this.positions = const [],
-//     this.imageUrl = '',
-//     this.fullName = '',
-//     this.jersyNumber = 0,
-//     this.positionsList = const [
-//       {POSITIONS: "Forward", VALUE: false},
-//       {POSITIONS: "Striker", VALUE: false},
-//       {POSITIONS: "Mid Field", VALUE: false},
-//       {POSITIONS: "Defense", VALUE: false},
-//       {POSITIONS: "Goalie", VALUE: false},
-//     ],
-//   });
-
-//   final bool userUpdation;
-//   final String userUid;
-//   final String nickname;
-//   final List<String> positions;
-//   final String imageUrl;
-//   final String fullName;
-//   final int jersyNumber;
-//   final List<Map<String, dynamic>> positionsList;
-
-//   UserData copyWith({
-//     bool? userUpdation,
-//     String? userUid,
-//     String? nickname,
-//     List<String>? positions,
-//     String? imageUrl,
-//     String? fullName,
-//     int? jersyNumber,
-//     List<Map<String, dynamic>>? positionsList,
-//   }) {
-//     return UserData(
-//       userUpdation: userUpdation ?? this.userUpdation,
-//       userUid: userUid ?? this.userUid,
-//       nickname: nickname ?? this.nickname,
-//       positions: positions ?? this.positions,
-//       imageUrl: imageUrl ?? this.imageUrl,
-//       fullName: fullName ?? this.fullName,
-//       jersyNumber: jersyNumber ?? this.jersyNumber,
-//       positionsList: positionsList ?? this.positionsList,
-//     );
-//   }
-
-//   factory UserData.fromMap(Map<String, dynamic> map) {
-//     return UserData(
-//       userUpdation: false,
-//       userUid: map[UID],
-//       nickname: map[NICKNAME] ?? '',
-//       positions: List<String>.from(map[POSITIONS] ?? []),
-//       imageUrl: map[IMAGEURL] ?? '',
-//       fullName: map[FULLNAME] ?? '',
-//       jersyNumber: map[JERSYNUMBER] ?? 0,
-//     );
-//   }
-// }

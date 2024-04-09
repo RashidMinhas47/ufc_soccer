@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ufc_soccer/providers/game_info_providers.dart';
 import 'package:ufc_soccer/providers/text_controllers.dart';
 import 'package:ufc_soccer/providers/update_player_stats_provider.dart';
-import 'package:ufc_soccer/screens/admin/setup_game.dart';
 import 'package:ufc_soccer/screens/profile_screens/edit_profile_screen.dart';
 import 'package:ufc_soccer/utils/button_styles.dart';
 import 'package:ufc_soccer/utils/constants.dart';
@@ -13,9 +12,6 @@ import 'package:ufc_soccer/utils/firebase_const.dart';
 import 'package:ufc_soccer/utils/image_urls.dart';
 import 'package:ufc_soccer/widgets/custom_drop_down_btn.dart';
 import 'package:ufc_soccer/widgets/custom_large_btn.dart';
-import 'package:ufc_soccer/widgets/custom_switch_btn.dart';
-import 'package:ufc_soccer/widgets/date_time_buttons.dart';
-import 'package:ufc_soccer/widgets/game_video_player.dart';
 import 'package:ufc_soccer/widgets/score_input_widget.dart';
 import 'package:ufc_soccer/widgets/text_field_with_border.dart';
 
@@ -76,6 +72,9 @@ class UpdatePlayerStats extends ConsumerWidget {
                             newValue, gameInfoPro.selectedUids);
                         gameInfoPro
                             .fetchSelectedPlayers(gameInfoPro.selectGame!);
+                        ref
+                            .watch(updatePlayerStatsProvider)
+                            .fetchUserData(gameInfoPro.selectUid!);
                       },
                       items: gameInfoPro.selectedPlayers
                           .map<DropdownMenuItem<String>>((String value) {
@@ -116,17 +115,20 @@ class UpdatePlayerStats extends ConsumerWidget {
                   LargeFlatButton(
                     onPressed: () {
                       // List<Map<String, dynamic>> userData = [];
-
-                      uPStatsPro.updateUserData(
-                          gameInfoPro.selectUid!,
-                          [
-                            {
-                              GAME_TITLE: gameInfoPro.selectGame,
-                              GOALS_SCORED: gameInfoPro.goalsCurrentGame,
-                              VIDEO_URL: uPStatsPro.videoUrls
-                            }
-                          ],
-                          context);
+                      uPStatsPro.updateTotalGames();
+                      uPStatsPro.addNewGameData({
+                        GAME_TITLE: gameInfoPro.selectGame,
+                        GOALS_SCORED: gameInfoPro.goalsCurrentGame,
+                        VIDEO_URL: uPStatsPro.videoUrls,
+                      }, gameInfoPro.selectUid);
+                      uPStatsPro.updatePlayerStats(
+                        gameInfoPro.selectUid!,
+                        context,
+                        totalGames: uPStatsPro.updatedTotalGames,
+                        totalGoals: uPStatsPro
+                            .updateTotalGoals(gameInfoPro.goalsCurrentGame),
+                        aveGoals: uPStatsPro.updateAveGoals(),
+                      );
                     },
                     size: size,
                     fontColor: kPrimaryColor,

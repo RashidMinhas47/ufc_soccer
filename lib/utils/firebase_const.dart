@@ -54,3 +54,7 @@ const String RED_TEAM_SCORE = 'RED_TEAM_SCORE';
 const String USER_GAME_STATS = 'USER_GAME_STATS';
 const String GAME_TITLE = 'GAME_TITLE';
 const String GOALS_SCORED = 'GOALS_SCORED';
+const String TOTAL_GAMES = 'TOTAL_GAMES';
+const String TOTAL_GOALS = 'TOTAL_GOALS';
+const String AVERAGE_GOALS = 'AVERAGE_GOALS';
+const String PLAYER_STATS = 'PLAYER_STATS';

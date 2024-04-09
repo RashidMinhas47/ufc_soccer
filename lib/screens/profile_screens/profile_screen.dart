@@ -19,7 +19,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    // ref.watch(userData).fetchUserData(context);
+    // ref.watch(userDataProvider).fetchUserData();
     // final userD = ref.watch(userDataProvider);
 
     return Scaffold(
@@ -33,42 +33,49 @@ class ProfileScreen extends ConsumerWidget {
           ),
           centerTitle: true,
         ),
-        body: Column(
-          children: [
-            // FutureBuilder(
-            //     future: userD.state,
-            //     builder: (context, child) {
-            ListTile(
-                leading: const Icon(
-                  Icons.admin_panel_settings_rounded,
-                  size: 40,
-                ),
-                title: Text(
-                  "Admin Panel",
-                  style: GoogleFonts.poppins(fontSize: 20),
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, GameAdmin.screen);
-                  //   },
-                  // );
-                }),
+        body: Consumer(builder: (context, ref, child) {
+          ref
+              .watch(userDataProvider)
+              .fetchUserData()
+              .whenComplete(() => ref.watch(userDataProvider).dispose());
 
-            Consumer(
-              builder: (context, ref, child) {
-                final userD =
-                    ref.watch(userDataProvider); // Access the user data
+          return Column(
+            children: [
+              // FutureBuilder(
+              //     future: userD.state,
+              //     builder: (context, child) {
+              ListTile(
+                  leading: const Icon(
+                    Icons.admin_panel_settings_rounded,
+                    size: 40,
+                  ),
+                  title: Text(
+                    "Admin Panel",
+                    style: GoogleFonts.poppins(fontSize: 20),
+                  ),
+                  onTap: () {
+                    Navigator.pushNamed(context, GameAdmin.screen);
+                    //   },
+                    // );
+                  }),
 
-                return UserProfileCard(
-                  label: "${userD.fullName}[${userD.jersyNumber}]",
-                  subtitle: userD.nickname,
-                  subtitle2: userD.positions.join(', '),
-                );
-              },
-            ),
-            const PlayerStatsCard(),
-            const Expanded(child: VideoListTiles())
-          ],
-        ));
+              Consumer(
+                builder: (context, ref, child) {
+                  final userD =
+                      ref.watch(userDataProvider); // Access the user data
+
+                  return UserProfileCard(
+                    label: "${userD.fullName}[${userD.jersyNumber}]",
+                    subtitle: userD.nickname,
+                    subtitle2: userD.positions.join(', '),
+                  );
+                },
+              ),
+              const PlayerStatsCard(),
+              const Expanded(child: VideoListTiles())
+            ],
+          );
+        }));
   }
 }
 

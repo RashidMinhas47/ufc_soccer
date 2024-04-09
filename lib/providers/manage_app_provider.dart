@@ -77,10 +77,10 @@ class AppSettingsProvider extends ChangeNotifier {
       // Fetch existing settings data
       final settingsDocSnapshot = await settingsDocRef.get();
       final data = settingsDocSnapshot.data();
-      final newLocations = List<String>.from(data?[LOCATIONS] ?? []);
-      final newManagers = List<String>.from(data?[MANAGERS] ?? []);
-      _locations = newLocations;
-      _managers = newManagers;
+      final getLocations = List<String>.from(data?[LOCATIONS] ?? []);
+      final getManagers = List<String>.from(data?[MANAGERS] ?? []);
+      _locations = getLocations;
+      _managers = getManagers;
       notifyListeners();
     } catch (error) {
       print('Error fetching app settings: $error');
