@@ -46,30 +46,34 @@ class GameAdmin extends ConsumerWidget {
         ),
         body: Center(
           child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (int index = 0; index < adminButtons.length; index++)
-                  LargeFlatButton(
-                    paddH: 10,
-                    paddV: 20,
-                    backgroundColor: kWhiteColor.withOpacity(0.0),
-                    onPressed: () {
-                      if (index == 0) {
-                        Navigator.pushNamed(context, GameSetupScreen.screen);
-                      } else if (index == 1) {
-                        Navigator.pushNamed(context, GameInfoScreen.screen);
-                      } else if (index == 2) {
-                        Navigator.pushNamed(context, UpdatePlayerStats.screen);
-                      } else if (index == 3) {
-                        Navigator.pushNamed(context, ManageAppSettings.screen);
-                      }
-                    },
-                    size: size,
-                    label: adminButtons[index][TITLE],
-                    fontColor: kBlackColor,
-                  )
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (int index = 0; index < adminButtons.length; index++)
+                    LargeFlatButton(
+                      paddH: 10,
+                      paddV: 20,
+                      backgroundColor: kWhiteColor.withOpacity(0.0),
+                      onPressed: () {
+                        if (index == 0) {
+                          Navigator.pushNamed(context, GameSetupScreen.screen);
+                        } else if (index == 1) {
+                          Navigator.pushNamed(context, GameInfoScreen.screen);
+                        } else if (index == 2) {
+                          Navigator.pushNamed(
+                              context, UpdatePlayerStats.screen);
+                        } else if (index == 3) {
+                          Navigator.pushNamed(
+                              context, ManageAppSettings.screen);
+                        }
+                      },
+                      size: size,
+                      label: adminButtons[index][TITLE],
+                      fontColor: kBlackColor,
+                    )
+                ],
+              ),
             ),
           ),
         ));

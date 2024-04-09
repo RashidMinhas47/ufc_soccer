@@ -32,6 +32,7 @@ class JoinGameScreen extends ConsumerWidget {
                   final game = games[index];
                   final userUid = ref.watch(userDataProvider).userUid;
                   final userName = ref.watch(userDataProvider).fullName;
+                  final gameName = game.title;
                   final joinGameLabel =
                       List<String>.generate(games.length, (i) {
                     return "Join Game";
@@ -57,7 +58,7 @@ class JoinGameScreen extends ConsumerWidget {
                         leading: const CircleAvatar(
                           child: Icon(Icons.person),
                         ),
-                        title: Text(game.name,
+                        title: Text(game.title,
                             style: GoogleFonts.poppins(
                                 fontSize: 16, fontWeight: FontWeight.w700)),
                       ),

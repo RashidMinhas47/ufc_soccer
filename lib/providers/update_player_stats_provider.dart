@@ -44,6 +44,8 @@ class UpdatePlayerStatsProvider extends ChangeNotifier {
         _defaultGameData.any((game) => game[GAME_TITLE] == newGameTitle);
 
     if (!containsSameTitle) {
+      updateTotalGames();
+
       _defaultGameData.add(newGame);
       final DocumentReference userRef =
           FirebaseFirestore.instance.collection(USERS).doc(userId);
@@ -74,10 +76,10 @@ class UpdatePlayerStatsProvider extends ChangeNotifier {
   }
 
   double updateAveGoals() {
-    _updatedAveGoals = _updatedTotalGoals / _updatedTotalGames;
+    double avgGoals = _updatedTotalGoals / _updatedTotalGames;
     notifyListeners();
 
-    return _updatedAveGoals;
+    return avgGoals;
   }
 
   Future<void> updatePlayerStats(String userId, BuildContext context,
@@ -91,6 +93,11 @@ class UpdatePlayerStatsProvider extends ChangeNotifier {
 
       await userRef.update({
         USER_GAME_STATS: defaultGameData,
+        PLAYER_STATS: {
+          TOTAL_GOALS: totalGoals,
+          TOTAL_GAMES: totalGames,
+          AVERAGE_GOALS: aveGoals
+        }
       });
       notifyListeners();
       bool conditionToStopPopping(Route<dynamic> route) {
@@ -137,7 +144,8 @@ class UpdatePlayerStatsProvider extends ChangeNotifier {
           // Update class variables with values from user data
           _updatedTotalGames = userData[PLAYER_STATS][TOTAL_GAMES] ?? 0;
           _updatedTotalGoals = userData[PLAYER_STATS][TOTAL_GOALS] ?? 0;
-          _updatedAveGoals = userData[PLAYER_STATS][AVERAGE_GOALS] ?? 0.0;
+          _updatedAveGoals =
+              double.parse(userData[PLAYER_STATS][AVERAGE_GOALS]);
           notifyListeners();
         } else {
           print('User data is null');

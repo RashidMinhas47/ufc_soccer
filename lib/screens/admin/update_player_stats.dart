@@ -35,48 +35,20 @@ class UpdatePlayerStats extends ConsumerWidget {
       appBar: AppBars.appBar("Game Admin", "Update Player Stats"),
       body: uPStatsPro.isloading
           ? prograssWidget
-          : Padding(
-              padding: kPadd20,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  CustomDDButton(
-                    hintText: "Select Game",
-                    parantValue: gameInfoPro.selectGame,
-                    onChanged: (String? newValue) {
-                      gameInfoPro.selectedGame(newValue);
-                      gameInfoPro.fetchSelectedPlayers(newValue ?? 'Game 1');
-                    },
-                    items: gameInfoPro.playedGames
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(
-                          value,
-                          style: GoogleFonts.poppins(),
-                          overflow: TextOverflow.fade,
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  Consumer(builder: (context, ref, child) {
-                    // if (gameInfoPro.selectPlayer == null) {
-                    //   return SizedBox.shrink();
-                    // } else {
-                    return CustomDDButton(
-                      hintText: "Select Player",
-                      parantValue: gameInfoPro.selectPlayer,
+          : SingleChildScrollView(
+              child: Padding(
+                padding: kPadd20,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    CustomDDButton(
+                      hintText: "Select Game",
+                      parantValue: gameInfoPro.selectGame,
                       onChanged: (String? newValue) {
-                        gameInfoPro.selectedPlayer(newValue);
-                        gameInfoPro.selectedPlayerUid(
-                            newValue, gameInfoPro.selectedUids);
-                        gameInfoPro
-                            .fetchSelectedPlayers(gameInfoPro.selectGame!);
-                        ref
-                            .watch(updatePlayerStatsProvider)
-                            .fetchUserData(gameInfoPro.selectUid!);
+                        gameInfoPro.selectedGame(newValue);
+                        gameInfoPro.fetchSelectedPlayers(newValue ?? 'Game 1');
                       },
-                      items: gameInfoPro.selectedPlayers
+                      items: gameInfoPro.playedGames
                           .map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
@@ -87,55 +59,84 @@ class UpdatePlayerStats extends ConsumerWidget {
                           ),
                         );
                       }).toList(),
-                    );
-                    // }
-                  }),
-                  ScoreInputWidget(
-                    label: 'Goals Scored This Game',
-                    ctrText: gameInfoPro.goalsCurrentGame.toString(),
-                    incrementTap: () => gameInfoPro.goalsCurrentGameAdd(),
-                    decrementTap: () => gameInfoPro.goalsCurrentGameRemove(),
-                  ),
-                  TextFeildWithBorder(
-                    controller: urlCtr,
-                    hintText: 'Enter Highlight YouTube URL',
-                  ),
-                  OutlinedButton(
-                    onPressed: () {
-                      uPStatsPro.addVideoUrls(urlCtr.text);
-                    },
-                    style: ButtonStyles.smallOutlineStyle(),
-                    child: Text(
-                      "Add",
-                      style: GoogleFonts.poppins(color: kPrimaryColor),
                     ),
-                  ),
-                  for (int i = 0; i < uPStatsPro.videoUrls.length; i++)
-                    buildLinkTiles("${i + 1} Link"),
-                  LargeFlatButton(
-                    onPressed: () {
-                      // List<Map<String, dynamic>> userData = [];
-                      uPStatsPro.updateTotalGames();
-                      uPStatsPro.addNewGameData({
-                        GAME_TITLE: gameInfoPro.selectGame,
-                        GOALS_SCORED: gameInfoPro.goalsCurrentGame,
-                        VIDEO_URL: uPStatsPro.videoUrls,
-                      }, gameInfoPro.selectUid);
-                      uPStatsPro.updatePlayerStats(
-                        gameInfoPro.selectUid!,
-                        context,
-                        totalGames: uPStatsPro.updatedTotalGames,
-                        totalGoals: uPStatsPro
-                            .updateTotalGoals(gameInfoPro.goalsCurrentGame),
-                        aveGoals: uPStatsPro.updateAveGoals(),
+                    Consumer(builder: (context, ref, child) {
+                      // if (gameInfoPro.selectPlayer == null) {
+                      //   return SizedBox.shrink();
+                      // } else {
+                      return CustomDDButton(
+                        hintText: "Select Player",
+                        parantValue: gameInfoPro.selectPlayer,
+                        onChanged: (String? newValue) {
+                          gameInfoPro.selectedPlayer(newValue);
+                          gameInfoPro.selectedPlayerUid(
+                              newValue, gameInfoPro.selectedUids);
+                          gameInfoPro
+                              .fetchSelectedPlayers(gameInfoPro.selectGame!);
+                          ref
+                              .watch(updatePlayerStatsProvider)
+                              .fetchUserData(gameInfoPro.selectUid!);
+                        },
+                        items: gameInfoPro.selectedPlayers
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(
+                              value,
+                              style: GoogleFonts.poppins(),
+                              overflow: TextOverflow.fade,
+                            ),
+                          );
+                        }).toList(),
                       );
-                    },
-                    size: size,
-                    fontColor: kPrimaryColor,
-                    label: 'Update Player Stats',
-                    backgroundColor: Colors.white.withOpacity(0),
-                  ),
-                ],
+                      // }
+                    }),
+                    ScoreInputWidget(
+                      label: 'Goals Scored This Game',
+                      ctrText: gameInfoPro.goalsCurrentGame.toString(),
+                      incrementTap: () => gameInfoPro.goalsCurrentGameAdd(),
+                      decrementTap: () => gameInfoPro.goalsCurrentGameRemove(),
+                    ),
+                    TextFeildWithBorder(
+                      controller: urlCtr,
+                      hintText: 'Enter Highlight YouTube URL',
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        uPStatsPro.addVideoUrls(urlCtr.text);
+                      },
+                      style: ButtonStyles.smallOutlineStyle(),
+                      child: Text(
+                        "Add",
+                        style: GoogleFonts.poppins(color: kPrimaryColor),
+                      ),
+                    ),
+                    for (int i = 0; i < uPStatsPro.videoUrls.length; i++)
+                      buildLinkTiles("${i + 1} Link"),
+                    LargeFlatButton(
+                      onPressed: () {
+                        // List<Map<String, dynamic>> userData = [];
+
+                        uPStatsPro.addNewGameData({
+                          GAME_TITLE: gameInfoPro.selectGame,
+                          GOALS_SCORED: gameInfoPro.goalsCurrentGame,
+                          VIDEO_URL: uPStatsPro.videoUrls,
+                        }, gameInfoPro.selectUid);
+                        uPStatsPro.updatePlayerStats(
+                          gameInfoPro.selectUid!,
+                          context,
+                          totalGames: uPStatsPro.updatedTotalGames,
+                          totalGoals: uPStatsPro.updatedTotalGoals,
+                          aveGoals: uPStatsPro.updateAveGoals(),
+                        );
+                      },
+                      size: size,
+                      fontColor: kPrimaryColor,
+                      label: 'Update Player Stats',
+                      backgroundColor: Colors.white.withOpacity(0),
+                    ),
+                  ],
+                ),
               ),
             ),
     );

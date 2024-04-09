@@ -155,9 +155,10 @@ class UserDataProvider with ChangeNotifier {
         // Now you can access the 'PLAYER_STATS' map safely
         if (playerStats != null) {
           // Update class variables with values from PLAYER_STATS
-          totalGames = playerStats[TOTAL_GAMES] ?? 0;
-          totalGoals = playerStats[TOTAL_GOALS] ?? 0;
-          aveGoals = playerStats[AVERAGE_GOALS].roundToDouble() ?? 0.0;
+          totalGames = playerStats[TOTAL_GAMES].toInt() ?? 0;
+          totalGoals = playerStats[TOTAL_GOALS].toInt() ?? 0;
+          aveGoals = double.parse(playerStats[AVERAGE_GOALS].toString())
+              .roundToDouble();
         } else {
           print('PLAYER_STATS data is null');
         }

@@ -35,71 +35,73 @@ class GameInfoScreen extends ConsumerWidget {
       appBar: AppBars.appBar("Game Admin", "Game Info"),
       body: gameInfoPro.isLoading
           ? prograssWidget
-          : Padding(
-              padding: kPadd20,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  CustomDDButton(
-                    hintText: "Select Game",
-                    parantValue: gameInfoPro.selectGame,
-                    onChanged: (String? newValue) {
-                      gameInfoPro.selectedGame(newValue);
-                    },
-                    items: gameInfoPro.playedGames
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(
-                          value,
-                          style: GoogleFonts.poppins(),
-                          overflow: TextOverflow.fade,
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const GameVideoPlayer(),
-                  TextFeildWithBorder(
-                    controller: urlCtr,
-                    hintText: 'Enter YouTube URL',
-                    onChanged: (value) {
-                      ref.watch(gameInfoProvider).setUrl(value);
-                    },
-                  ),
-
-                  // SwitchCustomButton(
-                  //   label: "Release Video Immediately",
-                  //   onChanged: (value) {
-                  //     setGamePro.setVotingCondition(value);
-                  //   },
-                  //   value: setGamePro.remixVoting,
-                  // ),
-                  //todo:
-                  ScoreInputWidget(
-                    label: 'Blue Team Score',
-                    incrementTap: () => gameInfoPro.blueTeamScoreAdd(),
-                    decrementTap: () => gameInfoPro.blueTeamScoreRemove(),
-                    ctrText: gameInfoPro.blueTeamScore.toString(),
-                  ),
-                  ScoreInputWidget(
-                    label: 'Red Team Score',
-                    ctrText: gameInfoPro.redTeamScore.toString(),
-                    incrementTap: () => gameInfoPro.redTeamScoreAdd(),
-                    decrementTap: () => gameInfoPro.redTeamScoreRemove(),
-                  ),
-                  LargeFlatButton(
-                      onPressed: () {
-                        gameInfoPro.sendGameHighlights(context,
-                            selectedGame: gameInfoPro.selectGame!,
-                            videoUrl: urlCtr.text,
-                            blueTeamScore: gameInfoPro.blueTeamScore,
-                            redTeamScore: gameInfoPro.redTeamScore);
+          : SingleChildScrollView(
+              child: Padding(
+                padding: kPadd20,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    CustomDDButton(
+                      hintText: "Select Game",
+                      parantValue: gameInfoPro.selectGame,
+                      onChanged: (String? newValue) {
+                        gameInfoPro.selectedGame(newValue);
                       },
-                      size: size,
-                      fontColor: kPrimaryColor,
-                      label: 'Update Game Info',
-                      backgroundColor: Colors.white.withOpacity(0))
-                ],
+                      items: gameInfoPro.playedGames
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(
+                            value,
+                            style: GoogleFonts.poppins(),
+                            overflow: TextOverflow.fade,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const GameVideoPlayer(),
+                    TextFeildWithBorder(
+                      controller: urlCtr,
+                      hintText: 'Enter YouTube URL',
+                      onChanged: (value) {
+                        ref.watch(gameInfoProvider).setUrl(value);
+                      },
+                    ),
+
+                    // SwitchCustomButton(
+                    //   label: "Release Video Immediately",
+                    //   onChanged: (value) {
+                    //     setGamePro.setVotingCondition(value);
+                    //   },
+                    //   value: setGamePro.remixVoting,
+                    // ),
+                    //todo:
+                    ScoreInputWidget(
+                      label: 'Blue Team Score',
+                      incrementTap: () => gameInfoPro.blueTeamScoreAdd(),
+                      decrementTap: () => gameInfoPro.blueTeamScoreRemove(),
+                      ctrText: gameInfoPro.blueTeamScore.toString(),
+                    ),
+                    ScoreInputWidget(
+                      label: 'Red Team Score',
+                      ctrText: gameInfoPro.redTeamScore.toString(),
+                      incrementTap: () => gameInfoPro.redTeamScoreAdd(),
+                      decrementTap: () => gameInfoPro.redTeamScoreRemove(),
+                    ),
+                    LargeFlatButton(
+                        onPressed: () {
+                          gameInfoPro.sendGameHighlights(context,
+                              selectedGame: gameInfoPro.selectGame!,
+                              videoUrl: urlCtr.text,
+                              blueTeamScore: gameInfoPro.blueTeamScore,
+                              redTeamScore: gameInfoPro.redTeamScore);
+                        },
+                        size: size,
+                        fontColor: kPrimaryColor,
+                        label: 'Update Game Info',
+                        backgroundColor: Colors.white.withOpacity(0))
+                  ],
+                ),
               ),
             ),
     );

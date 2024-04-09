@@ -42,7 +42,7 @@ class NextGameScreen extends StatelessWidget {
                   onPressed: () {
                     ref.read(signInProvider).signOutUser(context);
                   },
-                  icon: const Icon(Icons.settings));
+                  icon: const Icon(Icons.logout));
             })
           ],
         ),
@@ -50,16 +50,17 @@ class NextGameScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
             children: [
-              const AnimatedListTile(),
               Expanded(
                 child: Consumer(builder: (context, ref, child) {
-                  return PageView.builder(
-                      scrollBehavior: const ScrollBehavior().copyWith(
-                          physics: const NeverScrollableScrollPhysics()),
-                      controller: ref.watch(homePagesControler),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: joinLeavePages.length,
-                      itemBuilder: (context, index) => joinLeavePages[index]);
+                  return JoinGameScreen();
+
+                  // PageView.builder(
+                  //     scrollBehavior: const ScrollBehavior().copyWith(
+                  //         physics: const NeverScrollableScrollPhysics()),
+                  //     controller: ref.watch(homePagesControler),
+                  //     scrollDirection: Axis.horizontal,
+                  //     itemCount: joinLeavePages.length,
+                  //     itemBuilder: (context, index) => joinLeavePages[index]);
                 }),
               )
             ],

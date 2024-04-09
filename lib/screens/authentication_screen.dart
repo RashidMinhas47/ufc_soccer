@@ -44,138 +44,143 @@ class _AuthScreenState extends State<AuthScreen> {
                   color: Color(0xffffffff),
                   borderRadius: BorderRadius.circular(40 * 1),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        const Spacer(),
-                        Text(
-                          'Skip',
-                          textAlign: TextAlign.end,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16 * 1,
-                            fontWeight: FontWeight.w600,
-                            height: 1.5 * 1 / 1,
-                            decoration: TextDecoration.underline,
-                            color: const Color(0xff000000),
-                            decorationColor: const Color(0xff000000),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      // ellipse124qmN (211:109)
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 20),
-                      width: double.infinity,
-                      height: 64 * 1,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(32 * 1),
-                        image: DecorationImage(
-                          image: AssetImage(
-                            AppImages.appIcon,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      // pleaselogintoyouraccountk7e (211:26)
-                      margin: EdgeInsets.symmetric(vertical: 10),
-                      child: Text(
-                        isToogleScreen
-                            ? 'Please Sign Up to your account'
-                            : 'Please Login to your account',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(
-                          fontSize: 16 * 1,
-                          fontWeight: FontWeight.w600,
-                          height: 1.2125 * 1 / 1,
-                          color: Color(0xff333333),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      // frame5094dx8 (211:56)
-                      margin: EdgeInsets.symmetric(horizontal: 8.0),
-                      width: double.infinity,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
                         children: [
-                          Container(
-                            // frame5093NPv (211:57)
-                            margin: EdgeInsets.fromLTRB(
-                                0 * 1, 0 * 1, 0 * 1, 34 * 1),
-                            width: double.infinity,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  // frame5092KKA (211:58)
-                                  margin: EdgeInsets.fromLTRB(
-                                      0 * 1, 0 * 1, 0 * 1, 20 * 1),
-                                  width: double.infinity,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      textFieldsList(),
-                                      Text(
-                                        // forgotpassword724 (211:69)
-                                        'Forgot password?',
-                                        textAlign: TextAlign.right,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 14 * 1,
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.2125 * 1 / 1,
-                                          color: Color(0xff999999),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                SignUpButton(
-                                    onPressed: () {
-                                      isToogleScreen
-                                          ? ref
-                                              .read(signUpProvider)
-                                              .signUpValidation(
-                                                context: context,
-                                                correctCode:
-                                                    accessCodeController.text
-                                                        .trim(),
-                                                nameController: nameController,
-                                                email: emailController,
-                                                password: passwordController,
-                                                displayName:
-                                                    nameController.text,
-                                              )
-                                          : ref
-                                              .read(signInProvider)
-                                              .signInValidation(
-                                                  context: context,
-                                                  email: emailController,
-                                                  password: passwordController);
-                                    },
-                                    provider: ref.read(signUpProvider),
-                                    nameController: nameController,
-                                    emailController: emailController,
-                                    passwordController: passwordController,
-                                    size: size,
-                                    isToogleScreen: isToogleScreen),
-                              ],
+                          const Spacer(),
+                          Text(
+                            'Skip',
+                            textAlign: TextAlign.end,
+                            style: GoogleFonts.poppins(
+                              fontSize: 16 * 1,
+                              fontWeight: FontWeight.w600,
+                              height: 1.5 * 1 / 1,
+                              decoration: TextDecoration.underline,
+                              color: const Color(0xff000000),
+                              decorationColor: const Color(0xff000000),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    ScreenToogleButton(
-                      onTap: () => setState(() {
-                        isToogleScreen = !isToogleScreen;
-                      }),
-                      isToogleScreen: isToogleScreen,
-                    ),
-                  ],
+                      Container(
+                        // ellipse124qmN (211:109)
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 20),
+                        width: double.infinity,
+                        height: 64 * 1,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(32 * 1),
+                          image: DecorationImage(
+                            image: AssetImage(
+                              AppImages.appIcon,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        // pleaselogintoyouraccountk7e (211:26)
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        child: Text(
+                          isToogleScreen
+                              ? 'Please Sign Up to your account'
+                              : 'Please Login to your account',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.inter(
+                            fontSize: 16 * 1,
+                            fontWeight: FontWeight.w600,
+                            height: 1.2125 * 1 / 1,
+                            color: Color(0xff333333),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        // frame5094dx8 (211:56)
+                        margin: EdgeInsets.symmetric(horizontal: 8.0),
+                        width: double.infinity,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              // frame5093NPv (211:57)
+                              margin: EdgeInsets.fromLTRB(
+                                  0 * 1, 0 * 1, 0 * 1, 34 * 1),
+                              width: double.infinity,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    // frame5092KKA (211:58)
+                                    margin: EdgeInsets.fromLTRB(
+                                        0 * 1, 0 * 1, 0 * 1, 20 * 1),
+                                    width: double.infinity,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        textFieldsList(),
+                                        Text(
+                                          // forgotpassword724 (211:69)
+                                          'Forgot password?',
+                                          textAlign: TextAlign.right,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 14 * 1,
+                                            fontWeight: FontWeight.w400,
+                                            height: 1.2125 * 1 / 1,
+                                            color: Color(0xff999999),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  SignUpButton(
+                                      onPressed: () {
+                                        isToogleScreen
+                                            ? ref
+                                                .read(signUpProvider)
+                                                .signUpValidation(
+                                                  context: context,
+                                                  correctCode:
+                                                      accessCodeController.text
+                                                          .trim(),
+                                                  nameController:
+                                                      nameController,
+                                                  email: emailController,
+                                                  password: passwordController,
+                                                  displayName:
+                                                      nameController.text,
+                                                )
+                                            : ref
+                                                .read(signInProvider)
+                                                .signInValidation(
+                                                    context: context,
+                                                    email: emailController,
+                                                    password:
+                                                        passwordController);
+                                      },
+                                      provider: ref.read(signUpProvider),
+                                      nameController: nameController,
+                                      emailController: emailController,
+                                      passwordController: passwordController,
+                                      size: size,
+                                      isToogleScreen: isToogleScreen),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ScreenToogleButton(
+                        onTap: () => setState(() {
+                          isToogleScreen = !isToogleScreen;
+                        }),
+                        isToogleScreen: isToogleScreen,
+                      ),
+                    ],
+                  ),
                 ),
               ),
       ),
