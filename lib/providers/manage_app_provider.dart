@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ufc_soccer/screens/app_nav_bar.dart';
 import 'package:ufc_soccer/utils/firebase_const.dart';
 
 final appSettingsProvider =
@@ -89,7 +90,7 @@ class AppSettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateAppSettings() async {
+  Future<void> updateAppSettings(BuildContext context) async {
     try {
       // _locations.addAll();
       final settingsDoc = _firestore.collection(APPSETTINGS).doc(SETTINGS);
@@ -122,7 +123,14 @@ class AppSettingsProvider extends ChangeNotifier {
           APPACCESSCODE: appAccessCode,
         });
       }
+      bool conditionToStopPopping(Route<dynamic> route) {
+        // Check if the route is of type MyRoute
+        return route.settings.name == AppNavBar.screen;
+      }
 
+      Navigator.popUntil(context, (route) {
+        return conditionToStopPopping(route);
+      });
       print('App settings updated successfully!');
     } catch (error) {
       print('Error updating app settings: $error');

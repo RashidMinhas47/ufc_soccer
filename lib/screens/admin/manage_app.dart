@@ -112,8 +112,8 @@ class ManageAppSettings extends ConsumerWidget {
                       onPressed: () {
                         appSettingsPro
                             .updateAppAccessCode(appAccessCtr.text)
-                            .whenComplete(
-                                () => appSettingsPro.updateAppSettings());
+                            .whenComplete(() =>
+                                appSettingsPro.updateAppSettings(context));
                         appAccessCtr.clear();
                       },
                       size: size,

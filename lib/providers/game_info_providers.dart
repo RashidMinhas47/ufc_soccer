@@ -187,7 +187,14 @@ class GameInfoState extends ChangeNotifier {
       // Notify listeners that the operation is completed
       _isLoading = false;
       notifyListeners();
-      Navigator.pushReplacementNamed(context, AppNavBar.screen);
+      bool conditionToStopPopping(Route<dynamic> route) {
+        // Check if the route is of type MyRoute
+        return route.settings.name == AppNavBar.screen;
+      }
+
+      Navigator.popUntil(context, (route) {
+        return conditionToStopPopping(route);
+      });
     } catch (error) {
       print('Error sending game highlights: $error');
       // Handle error

@@ -176,22 +176,28 @@ class GameSetupScreen extends ConsumerWidget {
                         onPressed: () {
                           setGamePro
                               .setupGame(
-                                title: titlePro.text,
-                                context,
-                                date: dateTimePro.selectedDate?.formattedDate ??
-                                    "did'nt selected date",
-                                time:
-                                    dateTimePro.selectedTime?.format(context) ??
-                                        "Select Time",
-                                location: appSettingsPro.selectedLocation!,
-                                manager: appSettingsPro.selectedManager!,
-                                remixVoting: setGamePro.remixVoting,
-                                maxPlayers: setGamePro.maxPlayers!,
-                                timeCountdown: setGamePro.timeCountdown!,
-                              )
-                              .whenComplete(() =>
-                                  Navigator.pushReplacementNamed(
-                                      context, AppNavBar.screen));
+                            title: titlePro.text,
+                            context,
+                            date: dateTimePro.selectedDate?.formattedDate ??
+                                "did'nt selected date",
+                            time: dateTimePro.selectedTime?.format(context) ??
+                                "Select Time",
+                            location: appSettingsPro.selectedLocation!,
+                            manager: appSettingsPro.selectedManager!,
+                            remixVoting: setGamePro.remixVoting,
+                            maxPlayers: setGamePro.maxPlayers!,
+                            timeCountdown: setGamePro.timeCountdown!,
+                          )
+                              .whenComplete(() {
+                            bool conditionToStopPopping(Route<dynamic> route) {
+                              // Check if the route is of type MyRoute
+                              return route.settings.name == AppNavBar.screen;
+                            }
+
+                            Navigator.popUntil(context, (route) {
+                              return conditionToStopPopping(route);
+                            });
+                          });
                           // setGamePro.setData(
                           //     context: context,
                           //     location: appSettingsPro.selectedLocation,

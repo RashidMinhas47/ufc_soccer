@@ -62,11 +62,6 @@ class UpdatePlayerStatsProvider extends ChangeNotifier {
     }
   }
 
-  bool conditionToStopPopping(Route<dynamic> route) {
-    // Check if the route is of type MyRoute
-    return route.settings.name == AppNavBar.screen;
-  }
-
   int updateTotalGoals(int newValue) {
     int total = _updatedTotalGoals + newValue;
     notifyListeners();
@@ -98,6 +93,10 @@ class UpdatePlayerStatsProvider extends ChangeNotifier {
         USER_GAME_STATS: defaultGameData,
       });
       notifyListeners();
+      bool conditionToStopPopping(Route<dynamic> route) {
+        // Check if the route is of type MyRoute
+        return route.settings.name == AppNavBar.screen;
+      }
 
       Navigator.popUntil(context, (route) {
         return conditionToStopPopping(route);
