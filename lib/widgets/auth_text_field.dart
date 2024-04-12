@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ufc_soccer/utils/image_urls.dart';
 
 class AuthTextField extends StatelessWidget {
-  const AuthTextField({
+  AuthTextField({
     super.key,
     required this.hintText,
     this.controller,
     required this.iconPath,
+    this.obscureText = false,
+    this.suffixIcon,
   });
   final String hintText;
+  bool obscureText = false;
   final String iconPath;
   final TextEditingController? controller;
+  Widget? suffixIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +53,7 @@ class AuthTextField extends StatelessWidget {
                 color: Color.fromARGB(255, 0, 0, 0),
               ),
               controller: controller,
+              obscureText: obscureText,
               decoration: InputDecoration(
                 hintText: hintText,
                 border: InputBorder.none,
@@ -57,6 +63,7 @@ class AuthTextField extends StatelessWidget {
                   height: 1.2125 * 1 / 1,
                   color: Color(0xff999999),
                 ),
+                suffixIcon: suffixIcon,
               ),
             ),
           ),

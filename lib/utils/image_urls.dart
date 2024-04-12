@@ -24,6 +24,8 @@ class AppSvg {
   static String appleIcon = ("assets/svg/apple.svg");
   static String youtubeIcon = ("assets/svg/youtube_icon.svg");
   static String footballIcon = ("assets/svg/football_icon.svg");
+  static String eyeIcon = ("assets/svg/eye.svg");
+  static String eyeOffIcon = ("assets/svg/eye-off.svg");
 
   static String roundIcon = ("assets/svg/round.svg");
 

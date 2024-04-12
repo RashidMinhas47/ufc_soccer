@@ -178,8 +178,11 @@ class SetupGameProvider extends ChangeNotifier {
       notifyListeners();
       // Calculate end time of game setup
       DateTime setupEndTime =
-          DateTime.now().add(Duration(hours: timeCountdown));
-
+          DateTime.now().add(Duration(minutes: timeCountdown));
+      final numberOfGames = _firestore.collection(GAMES).;
+      int count = numberOfGames.
+      print(
+          ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>$numberOfGames<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
       if (remixVoting) {
         await _firestore.collection(GAMES).doc(newKey).set({
           ADMINNAME: user.displayName,

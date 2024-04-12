@@ -11,7 +11,14 @@ import 'package:flutter/material.dart';
 final signInProvider = ChangeNotifierProvider((ref) => SignInProviderAuth());
 final signUpProvider = ChangeNotifierProvider((ref) => SignUpAuthProvider());
 
-class SignUpAuthProvider with ChangeNotifier {
+class SignUpAuthProvider extends ChangeNotifier {
+  bool obScureText = false;
+
+  void tooglingObscureText() {
+    obScureText = !obScureText;
+    notifyListeners();
+  }
+
   UserCredential? userCredential;
   String? displayName;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

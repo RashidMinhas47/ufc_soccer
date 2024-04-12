@@ -158,11 +158,12 @@ class GameSetupScreen extends ConsumerWidget {
                             hintText: 'Enter Remix Time Countdown',
                             hintStyle: GoogleFonts.poppins(),
                           ),
-                          items: List.generate(99, (index) => index.toString())
+                          items: List.generate(
+                                  60, (index) => (index + 1).toString())
                               .map((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
-                              child: Text("$value hours",
+                              child: Text("$value minute",
                                   style: GoogleFonts.poppins()),
                             );
                           }).toList(),

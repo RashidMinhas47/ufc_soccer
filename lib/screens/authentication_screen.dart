@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ufc_soccer/utils/constants.dart';
 import 'package:ufc_soccer/widgets/sign_up_button.dart';
@@ -48,23 +49,6 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Row(
-                        children: [
-                          const Spacer(),
-                          Text(
-                            'Skip',
-                            textAlign: TextAlign.end,
-                            style: GoogleFonts.poppins(
-                              fontSize: 16 * 1,
-                              fontWeight: FontWeight.w600,
-                              height: 1.5 * 1 / 1,
-                              decoration: TextDecoration.underline,
-                              color: const Color(0xff000000),
-                              decorationColor: const Color(0xff000000),
-                            ),
-                          ),
-                        ],
-                      ),
                       Container(
                         // ellipse124qmN (211:109)
                         margin: const EdgeInsets.symmetric(
@@ -120,7 +104,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.end,
                                       children: [
-                                        textFieldsList(),
+                                        textFieldsList(
+                                            ref.watch(signUpProvider)),
                                         Text(
                                           // forgotpassword724 (211:69)
                                           'Forgot password?',
@@ -187,7 +172,7 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  Container textFieldsList() {
+  Container textFieldsList(SignUpAuthProvider provider) {
     return Container(
       // frame5091rpt (211:59)
       margin: paddBottom16,
@@ -211,6 +196,15 @@ class _AuthScreenState extends State<AuthScreen> {
             hintText: 'Password*',
             controller: passwordController,
             iconPath: AppSvg.lockIcon,
+            obscureText: provider.obScureText,
+            suffixIcon: IconButton(
+              onPressed: () => provider.tooglingObscureText(),
+              icon: SvgPicture.asset(
+                  provider.obScureText ? AppSvg.eyeIcon : AppSvg.eyeOffIcon,
+                  height: 19,
+                  width: 19,
+                  color: Color.fromARGB(255, 70, 69, 69)),
+            ),
           ),
           isToogleScreen
               ? AuthTextField(
