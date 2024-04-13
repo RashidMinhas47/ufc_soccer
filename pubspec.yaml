@@ -24,6 +24,9 @@ dependencies:
   flutter_riverpod: ^2.5.1
   uuid: ^4.3.3
   youtube_player_flutter: ^8.1.2
+  image: ^4.1.7
+  # flutter_image_compress: ^2.2.0
+  image_picker: ^1.0.8
 
 flutter_launcher_icons:
   android: "launcher_icon"

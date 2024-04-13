@@ -12,7 +12,7 @@ final setupGameProvider = ChangeNotifierProvider((ref) => SetupGameProvider());
 
 class SetupGameProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  bool isVoted = false;
+  bool isVoted = true;
   void setVote() {
     isVoted = true;
     notifyListeners();
@@ -33,9 +33,13 @@ class SetupGameProvider extends ChangeNotifier {
   }
 
   Stream<bool> isUserAlreadyVotedStream(String gameId, String userId) {
+    isVoted = false;
+    notifyListeners();
     return getVotersStream(gameId).map((voters) {
       if (voters != null) {
         return voters.contains(userId);
+      } else if (voters.isEmpty) {
+        return true;
       } else {
         return false;
       }
@@ -48,6 +52,7 @@ class SetupGameProvider extends ChangeNotifier {
   // String? manager;
   // int? maxPlayers;
   bool remixVoting = false;
+  bool remainTimeCondition = true;
   int? timeCountdown;
   int? maxPlayers;
   bool isLoading = false;
@@ -58,6 +63,12 @@ class SetupGameProvider extends ChangeNotifier {
   void setMaxPlayers(String value) {
     maxPlayers = int.parse(value);
     notifyListeners();
+  }
+
+  bool isRemainTimer(int countdown) {
+    bool yeah = countdown <= 2 ? remainTimeCondition = false : true;
+    notifyListeners();
+    return yeah;
   }
 
   void setTimeCountdown(value) {
@@ -170,6 +181,17 @@ class SetupGameProvider extends ChangeNotifier {
       required int timeCountdown,
       required String title}) async {
     try {
+      final QuerySnapshot existingGames =
+          await _firestore.collection(GAMES).get();
+      if (existingGames.docs.isNotEmpty) {
+        // If the GAMES collection is not empty, show a Snackbar and return
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  "A game is already set up. Please wait until it is completed.")),
+        );
+        return;
+      }
       String newKey = Uuid().v4();
 
       isLoading = true;
@@ -179,10 +201,9 @@ class SetupGameProvider extends ChangeNotifier {
       // Calculate end time of game setup
       DateTime setupEndTime =
           DateTime.now().add(Duration(minutes: timeCountdown));
-      final numberOfGames = _firestore.collection(GAMES).;
-      int count = numberOfGames.
-      print(
-          ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>$numberOfGames<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+      final numberOfGames = _firestore.collection(GAMES);
+      // int count = numberOfGames
+      // ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>$numberOfGames<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
       if (remixVoting) {
         await _firestore.collection(GAMES).doc(newKey).set({
           ADMINNAME: user.displayName,
@@ -261,6 +282,14 @@ class SetupGameProvider extends ChangeNotifier {
         // If setup time is over, cancel the timer
         if (remainingTime.inSeconds <= 0) {
           timer.cancel();
+          // bool conditionToStopPopping(Route<dynamic> route) {
+          //   // Check if the route is of type MyRoute
+          //   return route.settings.name == AppNavBar.screen;
+          // }
+
+          // Navigator.popUntil(context, (route) {
+          //   return conditionToStopPopping(route);
+          // });
         }
       });
       ScaffoldMessenger.of(context)
@@ -272,32 +301,32 @@ class SetupGameProvider extends ChangeNotifier {
     }
   }
 
-  void setupGameListener() {
-    _firestore.collection('GAMES').snapshots().listen((snapshot) {
-      snapshot.docs.forEach((doc) {
-        int remainingTime = doc.data()['REMAININGTIME'];
-        if (remainingTime == 0) {
-          // Game has been finalized, move it to FINALIZEDGAMES collection
-          finalizeGame(doc);
-        }
-      });
-    });
-  }
+  // void setupGameListener() {
+  //   _firestore.collection('GAMES').snapshots().listen((snapshot) {
+  //     snapshot.docs.forEach((doc) {
+  //       int remainingTime = doc.data()['REMAININGTIME'];
+  //       if (remainingTime == 0) {
+  //         // Game has been finalized, move it to FINALIZEDGAMES collection
+  //         finalizeGame(doc);
+  //       }
+  //     });
+  //   });
+  // }
 
-  void finalizeGame(DocumentSnapshot gameDoc) async {
-    try {
-      // Get data from the game document
-      Map<String, dynamic> gameData = gameDoc.data() as Map<String, dynamic>;
+  // void finalizeGame(DocumentSnapshot gameDoc) async {
+  //   try {
+  //     // Get data from the game document
+  //     Map<String, dynamic> gameData = gameDoc.data() as Map<String, dynamic>;
 
-      // Add additional logic or data transformation as needed
+  //     // Add additional logic or data transformation as needed
 
-      // Create a new document in FINALIZEDGAMES collection
-      await _firestore.collection('FINALIZEDGAMES').add(gameData);
+  //     // Create a new document in FINALIZEDGAMES collection
+  //     await _firestore.collection('FINALIZEDGAMES').add(gameData);
 
-      // Optionally, delete the document from GAMES collection
-      await gameDoc.reference.delete();
-    } catch (error) {
-      print('Error finalizing game: $error');
-    }
-  }
+  //     // Optionally, delete the document from GAMES collection
+  //     await gameDoc.reference.delete();
+  //   } catch (error) {
+  //     print('Error finalizing game: $error');
+  //   }
+  // }
 }

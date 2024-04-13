@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -64,6 +66,7 @@ class ProfileScreen extends ConsumerWidget {
                         ref.watch(userDataProvider); // Access the user data
 
                     return UserProfileCard(
+                      image: userD.imageUrl,
                       label: "${userD.fullName}[${userD.jersyNumber}]",
                       subtitle: userD.nickname,
                       subtitle2: userD.positions.join(', '),

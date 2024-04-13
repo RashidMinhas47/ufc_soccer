@@ -14,7 +14,7 @@ final nickNameCtr = ChangeNotifierProvider((ref) => TextEditingController());
 final jersyController =
     ChangeNotifierProvider((ref) => TextEditingController());
 
-class UserDataProvider with ChangeNotifier {
+class UserDataProvider extends ChangeNotifier {
   final _firestore = FirebaseFirestore.instance;
 
   bool userUpdation = false;
@@ -22,7 +22,7 @@ class UserDataProvider with ChangeNotifier {
   List<String> _positions = [];
   String _imageUrl = '';
   String _fullName = '';
-  int _jersyNumber = 0;
+  String _jersyNumber = "0";
 
   int? totalGoals;
   int? totalGames;
@@ -87,7 +87,7 @@ class UserDataProvider with ChangeNotifier {
   String get imageUrl => _imageUrl;
   String get fullName => _fullName;
   String get userUid => FirebaseAuth.instance.currentUser!.uid;
-  int get jersyNumber => _jersyNumber;
+  String get jersyNumber => _jersyNumber;
   Future<void> checkAuthenticationStatus(BuildContext context) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -178,10 +178,12 @@ class UserDataProvider with ChangeNotifier {
           _positions = List<String>.from(userData[POSITIONS]);
           _imageUrl = userData[IMAGEURL].toString();
           _fullName = userData[FULLNAME].toString();
-          _jersyNumber = int.parse(userData[JERSYNUMBER].toString());
+          _jersyNumber = userData[JERSYNUMBER].toString();
 
           // ScaffoldMessenger.of(context)
           //     .showSnackBar(SnackBar(content: Text("Welcome")));
+          print(
+              ">>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<**********$_imageUrl*************>>>>>>>>>>>>>>>>><<<<<<<<<<<<<");
           notifyListeners();
         } else {
           // ScaffoldMessenger.of(context).showSnackBar(
@@ -241,7 +243,7 @@ class UserDataProvider with ChangeNotifier {
   }
 
   void updateJerseyNumber(int newJerseyNumber) {
-    _jersyNumber = newJerseyNumber;
+    _jersyNumber = newJerseyNumber.toString();
     notifyListeners();
   }
 

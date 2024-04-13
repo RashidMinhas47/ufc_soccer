@@ -198,7 +198,9 @@ class GameSetupScreen extends ConsumerWidget {
                             Navigator.popUntil(context, (route) {
                               return conditionToStopPopping(route);
                             });
+                            ref.read(gameTitleCtrPro).clear();
                           });
+
                           // setGamePro.setData(
                           //     context: context,
                           //     location: appSettingsPro.selectedLocation,

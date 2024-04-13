@@ -12,7 +12,8 @@ final signInProvider = ChangeNotifierProvider((ref) => SignInProviderAuth());
 final signUpProvider = ChangeNotifierProvider((ref) => SignUpAuthProvider());
 
 class SignUpAuthProvider extends ChangeNotifier {
-  bool obScureText = false;
+  bool obScureText = true;
+  bool gotoSignin = false;
 
   void tooglingObscureText() {
     obScureText = !obScureText;
@@ -22,7 +23,8 @@ class SignUpAuthProvider extends ChangeNotifier {
   UserCredential? userCredential;
   String? displayName;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  bool loading = false;
+  bool _loading = false;
+  bool get loading => _loading;
   void signUpValidation({
     required BuildContext context,
     required TextEditingController? nameController,
@@ -31,36 +33,36 @@ class SignUpAuthProvider extends ChangeNotifier {
     String? displayName,
     required String correctCode, // Argument representing the correct code
   }) async {
-    loading = true;
+    _loading = true;
     notifyListeners();
 
     if (nameController!.text.trim().isEmpty ||
         email!.text.isEmpty ||
-        password!.text.isEmpty) {
+        password!.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Fill all the fields"),
         ),
       );
-      loading = false;
+      _loading = false;
       notifyListeners();
     } else {
       try {
-        loading = true;
+        _loading = true;
         notifyListeners();
 
         // Check if the provided email matches the correct code
         if (correctCode == 'ufcsoccer@admin1') {
           userCredential = await FirebaseAuth.instance
               .createUserWithEmailAndPassword(
-                  email: email.text, password: password.text);
+                  email: email.text.trim(), password: password.text.trim());
 
           final String uid = userCredential!.user?.uid ?? '';
           CollectionReference userCollection = _firestore.collection(USERS);
           await userCollection.doc(uid).set({
             UID: uid,
-            FULLNAME: nameController.text,
-            EMAIL: email.text,
+            FULLNAME: nameController.text.trim(),
+            EMAIL: email.text.trim(),
             NICKNAME: '',
             JERSYNUMBER: '',
             IMAGEURL: '',
@@ -77,13 +79,13 @@ class SignUpAuthProvider extends ChangeNotifier {
               this.displayName = displayName;
               AppSnackBar.snackBar(
                   context, 'Your Account is Created go to login page');
-              notifyListeners();
             }
           } catch (e) {
             print('Error updating display name: $e');
           }
 
-          loading = false;
+          _loading = false;
+          notifyListeners();
         } else {
           // Show message if the provided code is incorrect
           ScaffoldMessenger.of(context).showSnackBar(
@@ -91,8 +93,11 @@ class SignUpAuthProvider extends ChangeNotifier {
               content: Text("You've provided an incorrect code."),
             ),
           );
-          loading = false;
+          _loading = false;
+          notifyListeners();
         }
+        _loading = false;
+        notifyListeners();
       } on FirebaseException catch (e) {
         if (e.message != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -100,77 +105,14 @@ class SignUpAuthProvider extends ChangeNotifier {
               content: Text(e.message.toString()),
             ),
           );
-          loading = false;
+          _loading = false;
+          notifyListeners();
         }
       }
     }
+    _loading = false;
     notifyListeners();
   }
-
-  // void signUpValidation({
-  //   required BuildContext context,
-  //   required TextEditingController? nameController,
-  //   required TextEditingController? email,
-  //   required TextEditingController? password,
-  //   String? displayName,
-  // }) async {
-  //   loading = true;
-  //   notifyListeners();
-  //   if (nameController!.text.trim().isEmpty ||
-  //       email!.text.isEmpty ||
-  //       password!.text.isEmpty) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text("Fill all the Filed"),
-  //       ),
-  //     );
-  //     loading = false;
-  //     notifyListeners();
-  //   } else {
-  //     try {
-  //       loading = true;
-  //       notifyListeners();
-  //       userCredential = await FirebaseAuth.instance
-  //           .createUserWithEmailAndPassword(
-  //               email: email.text, password: password.text);
-
-  //       final String uid = userCredential!.user?.uid ?? '';
-  //       CollectionReference _userCollection = _firestore.collection("users");
-  //       await _userCollection.doc(uid).set({
-  //         'uid': uid,
-  //         "name": nameController.text,
-  //         "email": email.text,
-  //         "isApproved": false,
-  //       });
-
-  //       try {
-  //         User? user = FirebaseAuth.instance.currentUser;
-  //         if (user != null) {
-  //           await user.updateDisplayName(displayName);
-
-  //           this.displayName = displayName;
-  //           AppSnackBar.snackBar(
-  //               context, 'Your Account is Created go to login page');
-  //           notifyListeners();
-  //         }
-  //       } catch (e) {
-  //         print('Error updating display name: $e');
-  //       }
-
-  //       loading = false;
-  //     } on FirebaseException catch (e) {
-  //       if (e.message != null) {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //             content: Text(e.message.toString()),
-  //           ),
-  //         );
-  //         loading = false;
-  //       }
-  //     }
-  //   }
-  //   notifyListeners();
-  // }
 }
 
 class SignInProviderAuth with ChangeNotifier {
@@ -191,7 +133,7 @@ class SignInProviderAuth with ChangeNotifier {
       required BuildContext context}) async {
     loading = true;
     notifyListeners();
-    if (email.text.isEmpty || password.text.isEmpty) {
+    if (email.text.trim().isEmpty || password.text.trim().isEmpty) {
       AppSnackBar.snackBar(context, "Fill all the Details");
       loading = false;
       notifyListeners();
@@ -202,9 +144,9 @@ class SignInProviderAuth with ChangeNotifier {
         userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
             email: email.text.trim(), password: password.text.trim());
         FirebaseAuth.instance.currentUser;
-        final userCollection = FirebaseFirestore.instance.collection('users');
+        final userCollection = FirebaseFirestore.instance.collection(USERS);
         QuerySnapshot querySnapshot =
-            await userCollection.where('uid', isEqualTo: uid).get();
+            await userCollection.where(UID, isEqualTo: uid).get();
         Navigator.pushReplacementNamed(context, AppNavBar.screen);
         if (querySnapshot.docs.isEmpty) {
         } else if (querySnapshot.docs.isNotEmpty) {

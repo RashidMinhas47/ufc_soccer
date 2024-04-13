@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -5,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ufc_soccer/providers/manage_app_provider.dart';
 import 'package:ufc_soccer/providers/user_data.dart';
 import 'package:ufc_soccer/screens/profile_screens/edit_profile_screen.dart';
+import 'package:ufc_soccer/screens/profile_screens/widgets/user_profile_picture.dart';
 import 'package:ufc_soccer/utils/constants.dart';
 import 'package:ufc_soccer/utils/image_urls.dart';
 
@@ -13,15 +16,29 @@ class UserProfileCard extends StatelessWidget {
       {super.key,
       required this.label,
       required this.subtitle,
+      this.image,
       required this.subtitle2});
   final String label;
   final String subtitle;
   final String subtitle2;
+  final String? image;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: CircleAvatar(child: SvgPicture.asset(AppSvg.userIcon)),
+      leading: image!.isEmpty
+          ? CircleAvatar(
+              radius: 40,
+              child: Icon(
+                Icons.person,
+                size: 29,
+              ))
+          : CircleAvatar(
+              radius: 40,
+              backgroundImage: image != null
+                  ? NetworkImage(image!)
+                  : const AssetImage(AppImages.appIcon) as ImageProvider,
+            ),
       title: Text(
         label.toUpperCase(),
         style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
@@ -87,7 +104,7 @@ class UserProfileCardWithoutAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: CircleAvatar(child: SvgPicture.asset(AppSvg.userIcon)),
+      leading: ProfilePictureUploadWidget(),
       title: Text(
         label.toUpperCase(),
         style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),

@@ -164,21 +164,17 @@ import 'package:ufc_soccer/widgets/custom_large_btn.dart';
 import 'package:ufc_soccer/widgets/list_tile_with_border.dart';
 import 'package:ufc_soccer/widgets/players_list_table.dart';
 
-class VoteForNextGame extends ConsumerWidget {
+class VoteForNextGame extends StatelessWidget {
   static const String screen = '/VoteForNextGame';
-  const VoteForNextGame({Key? key, required this.game}) : super(key: key);
+  const VoteForNextGame({super.key, required this.game});
   final GameModel game;
 
   @override
-  Widget build(BuildContext context, ref) {
-    final gamePro = ref.watch(setupGameProvider);
-    final userData = ref.watch(userDataProvider);
+  Widget build(BuildContext context) {
     // final countdownTimerProvider = StateProvider<int>((ref) {
     //   // Set the initial countdown time based on game.remixTime in hours
     //   return game.timeCountdown * 3600;
     // });
-
-    Timer? _timer;
 
     // void startCountdownTimer() {
     //   _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -210,144 +206,155 @@ class VoteForNextGame extends ConsumerWidget {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              NextGameDetailTile(
-                time: game.time,
-                date: game.date,
-                spots: game.maxPlayer.toString(),
-              ),
-              PlayersListTable(
-                playerNames: game.joinedPlayerNames,
-              ),
-              game.remainingTime == 0
-                  ? Padding(
-                      padding: const EdgeInsets.all(13.0),
-                      child: Text(
-                        "Time is up you did'nt vote.",
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+        child: Consumer(builder: (context, ref, child) {
+          final gamePro = ref.watch(setupGameProvider);
+          final userData = ref.watch(userDataProvider);
+          print(
+              ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>REMAINING TIME: ${game.remainingTime}<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+          return SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                NextGameDetailTile(
+                  time: game.time,
+                  date: game.date,
+                  spots: game.maxPlayer.toString(),
+                ),
+                PlayersListTable(
+                  playerNames: game.joinedPlayerNames,
+                ),
+                game.remainingTime <= 1
+                    ? Padding(
+                        padding: const EdgeInsets.all(13.0),
+                        child: Text(
+                          "Time is up you did'nt vote.",
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                          ),
                         ),
-                      ),
-                    )
-                  : Column(
-                      children: [
-                        Consumer(
-                          builder: (context, ref, _) {
-                            // final countdownTime =
-                            //     ref.watch(countdownTimerProvider.notifier).state;
-                            // final hours = countdownTime ~/ 3600;
-                            // final minutes = (countdownTime % 3600) ~/ 60;
-                            // final seconds = countdownTime % 60;
-                            return StreamBuilder<DocumentSnapshot>(
-                              stream: FirebaseFirestore.instance
-                                  .collection(GAMES)
-                                  .doc(game.id)
-                                  .snapshots(),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  // Calculate elapsed time since game setup
-                                  final setupStartTime =
-                                      snapshot.data!.get(VOTETIMER);
-                                  final currentTime = DateTime.now();
-                                  final elapsedDuration = currentTime
-                                      .difference(setupStartTime.toDate());
+                      )
+                    : Column(
+                        children: [
+                          StreamBuilder<DocumentSnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection(GAMES)
+                                .doc(game.id)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return progressWidget;
+                              } else if (snapshot.hasData &&
+                                  snapshot.data!.exists) {
+                                // Calculate elapsed time since game setup
+                                final setupStartTime =
+                                    snapshot.data!.get(VOTETIMER);
+                                final currentTime = DateTime.now();
+                                final elapsedDuration = currentTime
+                                    .difference(setupStartTime.toDate());
 
-                                  // Calculate remaining time for setup
-                                  const setupDuration = Duration(minutes: 0);
+                                // Calculate remaining time for setup
+                                const setupDuration = Duration(minutes: 0);
 
-                                  final remainingDuration =
-                                      (setupDuration.inSeconds -
-                                                  elapsedDuration.inSeconds) >=
-                                              0
-                                          ? (setupDuration.inSeconds -
-                                              elapsedDuration.inSeconds)
-                                          : 0;
-                                  FirebaseFirestore.instance
-                                      .collection(GAMES)
-                                      .doc(game.id)
-                                      .update(
-                                          {REMAININGTIME: remainingDuration});
-                                  return CountdownTimerWidget(
-                                    remainingTimeInSeconds: game
-                                        .remainingTime, // Pass your remaining time in seconds here
-                                  );
-                                  // Text(
-                                  //     'Remaining Time: ${remainingDuration.inMinutes} minutes');
-                                } else {
-                                  return const CircularProgressIndicator();
-                                }
-                              },
-                            );
-
-                            //  Text(
-                            //   'Remix Team: not defiend yet',
-                            //   style: GoogleFonts.poppins(fontSize: 20),
-                            // );
-                          },
-                        ),
-                        game.remixVoting
-                            ? StreamBuilder(
-                                stream: gamePro.isUserAlreadyVotedStream(
-                                    game.id, userData.userUid),
-                                builder: (context, snapshot) {
-                                  final value = snapshot.data;
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return progressWidget;
-                                  } else {
-                                    return Container(
-                                      child: snapshot.hasData && value!
-                                          ? Padding(
-                                              padding:
-                                                  const EdgeInsets.all(13.0),
-                                              child: Text(
-                                                "A vote in favor of keeping teams has been selected.",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 20,
+                                final remainingDuration =
+                                    (setupDuration.inSeconds -
+                                                elapsedDuration.inSeconds) >=
+                                            0
+                                        ? (setupDuration.inSeconds -
+                                            elapsedDuration.inSeconds)
+                                        : 0;
+                                FirebaseFirestore.instance
+                                    .collection(GAMES)
+                                    .doc(game.id)
+                                    .update({REMAININGTIME: remainingDuration});
+                                return CountdownTimerWidget(
+                                  remainingTimeInSeconds: game
+                                      .remainingTime, // Pass your remaining time in seconds here
+                                );
+                                // Text(
+                                //     'Remaining Time: ${remainingDuration.inMinutes} minutes');
+                              } else {
+                                return Padding(
+                                  padding: const EdgeInsets.all(13.0),
+                                  child: Text(
+                                    "Teams been finilized.",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                          game.remixVoting
+                              ? StreamBuilder(
+                                  stream: gamePro.isUserAlreadyVotedStream(
+                                      game.id, userData.userUid),
+                                  builder: (context, snapshot) {
+                                    if (game.remainingTime <= 1) {
+                                      Navigator.pop(context);
+                                    }
+                                    final value = snapshot.data;
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return progressWidget;
+                                    } else if (snapshot.hasError) {
+                                      return Text('You have got Some Error');
+                                    } else {
+                                      return Container(
+                                        child: snapshot.hasData && value! ||
+                                                gamePro.isVoted
+                                            ? Padding(
+                                                padding:
+                                                    const EdgeInsets.all(13.0),
+                                                child: Text(
+                                                  "A vote in favor of keeping teams has been selected.",
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 20,
+                                                  ),
                                                 ),
+                                              )
+                                            : Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  LargeFlatButton(
+                                                    onPressed: () {
+                                                      gamePro
+                                                          .voteForYes(game.id);
+                                                    },
+                                                    size: const Size(120, 60),
+                                                    fontColor: kPrimaryColor,
+                                                    label: "Yes",
+                                                    backgroundColor:
+                                                        Colors.transparent,
+                                                  ),
+                                                  const SizedBox(width: 20),
+                                                  LargeFlatButton(
+                                                    onPressed: () {
+                                                      gamePro
+                                                          .voteForNo(game.id);
+                                                    },
+                                                    size: const Size(120, 60),
+                                                    fontColor: kPrimaryColor,
+                                                    label: "No",
+                                                    backgroundColor:
+                                                        Colors.transparent,
+                                                  ),
+                                                ],
                                               ),
-                                            )
-                                          : Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                LargeFlatButton(
-                                                  onPressed: () {
-                                                    gamePro.voteForYes(game.id);
-                                                  },
-                                                  size: const Size(120, 60),
-                                                  fontColor: kPrimaryColor,
-                                                  label: "Yes",
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                ),
-                                                const SizedBox(width: 20),
-                                                LargeFlatButton(
-                                                  onPressed: () {
-                                                    gamePro.voteForNo(game.id);
-                                                  },
-                                                  size: const Size(120, 60),
-                                                  fontColor: kPrimaryColor,
-                                                  label: "No",
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                ),
-                                              ],
-                                            ),
-                                    );
-                                  }
-                                })
-                            : const SizedBox.shrink(),
-                      ],
-                    )
-            ],
-          ),
-        ),
+                                      );
+                                    }
+                                  })
+                              : const SizedBox.shrink(),
+                        ],
+                      )
+              ],
+            ),
+          );
+        }),
       ),
     );
   }
@@ -380,10 +387,12 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget> {
     int minutes = _remainingTime.inMinutes.remainder(60);
     int seconds = _remainingTime.inSeconds.remainder(60);
 
-    return Text(
-      'Remaining Time: ${hours < 1 ? "" : hours < 10 ? "0$hours:" : "$hours:"}${_formatTime(minutes)}:${_formatTime(seconds)}',
-      style: const TextStyle(fontSize: 20),
-    );
+    return seconds <= 2
+        ? SizedBox.shrink()
+        : Text(
+            'Remaining Time: ${hours < 1 ? "" : hours < 10 ? "0$hours:" : "$hours:"}${_formatTime(minutes)}:${_formatTime(seconds)}',
+            style: const TextStyle(fontSize: 20),
+          );
   }
 
   String _formatTime(int time) {

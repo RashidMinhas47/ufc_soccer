@@ -15,17 +15,19 @@ class GameJoinProvider extends ChangeNotifier {
   //   gameId = [];
   // }
 
-  List<String> gameId = [];
+  String gameId = '';
   // addJoinedList(bool newValue) {
   //   isJoinedList.add(newValue);
   //   notifyListeners();
   // }
 
   addGameIds(String newId) {
-    if (!gameId.contains(newId)) {
-      gameId.add(newId);
-      notifyListeners();
-    }
+    gameId = newId;
+    notifyListeners();
+    // if (!gameId.contains(newId)) {
+    //   gameId.add(newId);
+    //   notifyListeners();
+    // }
   }
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

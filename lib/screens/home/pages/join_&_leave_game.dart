@@ -10,160 +10,174 @@ import 'package:ufc_soccer/utils/constants.dart';
 import 'package:ufc_soccer/utils/firebase_const.dart';
 import 'package:ufc_soccer/widgets/custom_large_btn.dart';
 
-class JoinGameScreen extends ConsumerWidget {
+class JoinGameScreen extends StatelessWidget {
   static const String screen = '/JoinGameScreen';
   const JoinGameScreen({super.key});
 
   @override
-  Widget build(BuildContext context, ref) {
+  Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Consumer(
-        builder: (context, ref, child) {
-          final gameList =
-              ref.watch(gameListProvider); // Access the gameListProvider
-          final gamePro = ref.watch(gameJoinProvider);
-          return gameList.when(
-            data: (games) {
-              return ListView.builder(
-                itemCount: games.length,
-                itemBuilder: (context, index) {
-                  final game = games[index];
-                  final userUid = ref.watch(userDataProvider).userUid;
-                  final userName = ref.watch(userDataProvider).fullName;
-                  final gameName = game.title;
-                  final joinGameLabel =
-                      List<String>.generate(games.length, (i) {
-                    return "Join Game";
-                  });
-                  // print(joinGameLabel);
-                  final leaveGameLabel =
-                      List<String>.generate(games.length, (i) {
-                    return "Leave Game";
-                  });
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Consumer(
+          builder: (context, ref, child) {
+            final gameList =
+                ref.watch(gameListProvider); // Access the gameListProvider
+            final gamePro = ref.watch(gameJoinProvider);
+            return gameList.when(
+              data: (games) {
+                return ListView.builder(
+                  itemCount: games.length,
+                  itemBuilder: (context, index) {
+                    final game = games[index];
+                    final userUid = ref.watch(userDataProvider).userUid;
+                    final userName = ref.watch(userDataProvider).fullName;
+                    final joinGameLabel =
+                        List<String>.generate(games.length, (i) {
+                      return "Join Game";
+                    });
+                    // print(joinGameLabel);
+                    final leaveGameLabel =
+                        List<String>.generate(games.length, (i) {
+                      return "Leave Game";
+                    });
 
-                  // Check if the user's UID is already in the JOINEDPLAYERS list
-                  // Check if the user's UID is already in the joinedPlayers list for each game
-                  List<bool> isJoinedList = [];
-                  for (final game in games) {
-                    final isJoined = game.joinedPlayerUids.contains(userUid);
-                    isJoinedList.add(isJoined);
-                    // gamePro.addJoinedList(isJoined);
-                    // print(isJoined);
-                  }
-                  return Column(
-                    children: [
-                      ListTile(
-                        leading: const CircleAvatar(
-                          child: Icon(Icons.person),
+                    // Check if the user's UID is already in the JOINEDPLAYERS list
+                    // Check if the user's UID is already in the joinedPlayers list for each game
+                    List<bool> isJoinedList = [];
+                    for (final game in games) {
+                      final isJoined = game.joinedPlayerUids.contains(userUid);
+                      isJoinedList.add(isJoined);
+                      // gamePro.addJoinedList(isJoined);
+                      // print(isJoined);
+                    }
+                    return Column(
+                      children: [
+                        ListTile(
+                          leading: const CircleAvatar(
+                            child: Icon(Icons.person),
+                          ),
+                          title: Text(game.title,
+                              style: GoogleFonts.poppins(
+                                  fontSize: 16, fontWeight: FontWeight.w700)),
                         ),
-                        title: Text(game.title,
-                            style: GoogleFonts.poppins(
-                                fontSize: 16, fontWeight: FontWeight.w700)),
-                      ),
-                      AspectRatio(
-                        aspectRatio: 1,
-                        child: Container(
-                          decoration: const BoxDecoration(color: kGrayColor),
-                          child: const Icon(
-                            Icons.image,
-                            size: 140,
+                        AspectRatio(
+                          aspectRatio: 1,
+                          child: Container(
+                            decoration: const BoxDecoration(color: kGrayColor),
+                            child: const Icon(
+                              Icons.image,
+                              size: 140,
+                            ),
                           ),
                         ),
-                      ),
-                      Text(
-                        "Sign Up For a Game",
-                        style: GoogleFonts.poppins(
-                            fontSize: 18, fontWeight: FontWeight.w700),
-                      ),
-                      Text("Date: ${game.date} Time: ${game.time}"),
-                      Text("Available Spots: ${game.maxPlayer.toString()}"),
-                      game.maxPlayer == 0
-                          ? LargeFlatButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            VoteForNextGame(game: game)));
-                              },
-                              size: Size(size.width * 0.7, 70),
-                              fontColor: kPrimaryColor,
-                              label: "Game Details",
-                              backgroundColor: kWhiteColor.withOpacity(0))
-                          : LargeFlatButton(
-                              onPressed: () async {
-                                try {
-                                  final QuerySnapshot querySnapshot =
-                                      await FirebaseFirestore.instance
+                        Text(
+                          "Sign Up For a Game",
+                          style: GoogleFonts.poppins(
+                              fontSize: 18, fontWeight: FontWeight.w700),
+                        ),
+                        Text("Date: ${game.date} Time: ${game.time}"),
+                        Text("Available Spots: ${game.maxPlayer.toString()}"),
+                        game.maxPlayer == 0
+                            ? LargeFlatButton(
+                                onPressed: () {
+                                  print(
+                                      "Hello World......................[[[[[[[[]]]]]]]]");
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              VoteForNextGame(game: game)));
+                                },
+                                size: Size(size.width * 0.7, 70),
+                                fontColor: kPrimaryColor,
+                                label: "Game Details",
+                                backgroundColor: kWhiteColor.withOpacity(0))
+                            : LargeFlatButton(
+                                onPressed: () async {
+                                  try {
+                                    final QuerySnapshot querySnapshot =
+                                        await FirebaseFirestore.instance
+                                            .collection(GAMES)
+                                            .get();
+
+                                    // Loop through the documents in the result set
+                                    for (QueryDocumentSnapshot docSnapshot
+                                        in querySnapshot.docs) {
+                                      // Access the document ID using the id property
+                                      final newId = docSnapshot.id;
+                                      gamePro.addGameIds(newId);
+                                      // gamePro.gameId[index] = docSnapshot.id;
+
+                                      print('Game ID: ${gamePro.gameId}');
+                                    }
+                                    final _firestore =
+                                        FirebaseFirestore.instance;
+
+                                    if (game.joinedPlayerUids
+                                            .contains(userUid) &&
+                                        game.joinedPlayerNames
+                                            .contains(userName)) {
+                                      // Sting id =
+                                      // If the user has already joined, perform leave game functionality
+                                      await _firestore
                                           .collection(GAMES)
-                                          .get();
-
-                                  // Loop through the documents in the result set
-                                  for (QueryDocumentSnapshot docSnapshot
-                                      in querySnapshot.docs) {
-                                    // Access the document ID using the id property
-                                    final newId = docSnapshot.id;
-                                    gamePro.addGameIds(newId);
-                                    // gamePro.gameId[index] = docSnapshot.id;
-
-                                    print('Game ID: ${gamePro.gameId}');
+                                          .doc(game.id)
+                                          .set({
+                                        JOINEDPLAYERS:
+                                            FieldValue.arrayRemove([userUid]),
+                                        JOINEDPLAYERNAMES:
+                                            FieldValue.arrayRemove([userName]),
+                                        MAXPLAYER: game.maxPlayer + 1
+                                      }, SetOptions(merge: true));
+                                    } else {
+                                      // If the user has not joined, perform join game functionality
+                                      await _firestore
+                                          .collection(GAMES)
+                                          .doc(game.id)
+                                          .set(
+                                              {
+                                            JOINEDPLAYERS:
+                                                FieldValue.arrayUnion(
+                                                    [userUid]),
+                                            JOINEDPLAYERNAMES:
+                                                FieldValue.arrayUnion(
+                                                    [userName]),
+                                            MAXPLAYER: game.maxPlayer - 1
+                                          },
+                                              SetOptions(
+                                                merge: true,
+                                              ));
+                                    }
+                                  } catch (error) {
+                                    print('Error joining/leaving game: $error');
                                   }
-                                  final _firestore = FirebaseFirestore.instance;
-
-                                  if (isJoinedList[index]) {
-                                    // If the user has already joined, perform leave game functionality
-                                    await _firestore
-                                        .collection(GAMES)
-                                        .doc(gamePro.gameId[index])
-                                        .update({
-                                      JOINEDPLAYERS:
-                                          FieldValue.arrayRemove([userUid]),
-                                      JOINEDPLAYERNAMES:
-                                          FieldValue.arrayRemove([userName]),
-                                      MAXPLAYER: game.maxPlayer + 1
-                                    });
-                                  } else {
-                                    // If the user has not joined, perform join game functionality
-                                    await _firestore
-                                        .collection(GAMES)
-                                        .doc(gamePro.gameId[index])
-                                        .update({
-                                      JOINEDPLAYERS:
-                                          FieldValue.arrayUnion([userUid]),
-                                      JOINEDPLAYERNAMES:
-                                          FieldValue.arrayUnion([userName]),
-                                      MAXPLAYER: game.maxPlayer - 1
-                                    });
-                                  }
-                                } catch (error) {
-                                  print('Error joining/leaving game: $error');
-                                }
-                              },
-                              size: const Size(200, 100),
-                              fontColor: kPrimaryColor,
-                              label: isJoinedList[index]
-                                  ? leaveGameLabel[index]
-                                  : joinGameLabel[index],
-                              backgroundColor: Colors.white.withOpacity(0),
-                            ),
-                    ],
-                  );
-                },
-              );
-            },
-            loading: () => progressWidget,
-            error: (error, stackTrace) => Center(child: Text('Error: $error')),
-          );
-        },
+                                },
+                                size: const Size(200, 100),
+                                fontColor: kPrimaryColor,
+                                label: isJoinedList[index]
+                                    ? leaveGameLabel[index]
+                                    : joinGameLabel[index],
+                                backgroundColor: Colors.white.withOpacity(0),
+                              ),
+                      ],
+                    );
+                  },
+                );
+              },
+              loading: () => progressWidget,
+              error: (error, stackTrace) =>
+                  Center(child: Text('Error: $error')),
+            );
+          },
+        ),
       ),
     );
   }
 }
 
 const progressWidget = Center(child: CircularProgressIndicator());
-
 
 // class LeaveGameScreen extends ConsumerWidget {
 //   static const String screen = '/LeaveGameScreen';

@@ -47,8 +47,8 @@ class EditProfileScreen extends ConsumerWidget {
                     size: size,
                     onPressed: () {
                       if (nickName.text != null ||
-                          nickName.text.isEmpty && jersyCtr.text != null ||
-                          jersyCtr.text.isEmpty) {
+                          nickName.text.isNotEmpty && jersyCtr.text != null ||
+                          jersyCtr.text.isNotEmpty) {
                         editProfilePro.updateNickname(nickName.text);
                         editProfilePro
                             .updateJerseyNumber(int.parse(jersyCtr.text));
