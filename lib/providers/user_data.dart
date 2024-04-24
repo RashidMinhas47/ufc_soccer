@@ -21,7 +21,7 @@ class UserDataProvider extends ChangeNotifier {
   String _nickname = '';
   List<String> _positions = [];
   String _imageUrl = '';
-  String _fullName = '';
+  String _fullName = FirebaseAuth.instance.currentUser!.displayName!;
   String _jersyNumber = "0";
 
   int? totalGoals;
@@ -137,8 +137,7 @@ class UserDataProvider extends ChangeNotifier {
   // Fetch user data from Firestore
   Future<void> fetchUserData() async {
     try {
-      print(
-          "..............##############.......#######$userUid################>>>>>>>>>>>>>>");
+      //TODO: this function is calling reapeatd
       // Get reference to the user document in the USERS collection
       // Get reference to the user document in the USERS collection
       DocumentReference userRef =
@@ -182,8 +181,6 @@ class UserDataProvider extends ChangeNotifier {
 
           // ScaffoldMessenger.of(context)
           //     .showSnackBar(SnackBar(content: Text("Welcome")));
-          print(
-              ">>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<**********$_imageUrl*************>>>>>>>>>>>>>>>>><<<<<<<<<<<<<");
           notifyListeners();
         } else {
           // ScaffoldMessenger.of(context).showSnackBar(
@@ -261,5 +258,45 @@ class UserDataProvider extends ChangeNotifier {
   void togglePosition(int index) {
     _postionsData[index][VALUE] = !_postionsData[index][VALUE];
     notifyListeners();
+  }
+
+  Future<List<String>> fetchVideoUrls(String userId) async {
+    try {
+      // Get a reference to the USERS collection
+      CollectionReference usersCollection =
+          FirebaseFirestore.instance.collection('USERS');
+
+      // Get the document with the specified userId
+      DocumentSnapshot userDoc = await usersCollection.doc(userId).get();
+
+      // Check if the document exists
+      if (userDoc.exists) {
+        // Get the USER_GAME_STATS map from the document
+        Map<String, dynamic>? userGameStats =
+            userDoc.data() as Map<String, dynamic>?;
+        final userURlData = userGameStats![USER_GAME_STATS];
+
+        // Check if USER_GAME_STATS map exists and contains VIDEO_URL field
+        if (userGameStats != null && userURlData.containsKey(VIDEO_URL)) {
+          // Get the list of video URLs from the USER_GAME_STATS map
+          List<dynamic>? videoUrls = userURlData[VIDEO_URL];
+
+          // Check if the list of video URLs exists and is not empty
+          if (videoUrls != null && videoUrls.isNotEmpty) {
+            // Convert the list of dynamic values to a list of strings
+            List<String> videoUrlsList =
+                videoUrls.map((url) => url.toString()).toList();
+
+            return videoUrlsList;
+          }
+        }
+      }
+      // If the document or the VIDEO_URL field doesn't exist, return an empty list
+      return [];
+    } catch (error) {
+      print('Error fetching video URLs: $error');
+      // Return an empty list or handle the error accordingly
+      return [];
+    }
   }
 }

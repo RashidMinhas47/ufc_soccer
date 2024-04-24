@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ufc_soccer/routes/routing_functions.dart';
 import 'package:ufc_soccer/screens/app_nav_bar.dart';
 import 'package:ufc_soccer/utils/firebase_const.dart';
 import 'package:uuid/uuid.dart';
@@ -105,7 +106,7 @@ class GameInfoState extends ChangeNotifier {
     }
   }
 
-  Future<List<String>> _fetchUserNames(List<String> userIds) async {
+  Future<List<String>> fetchUserNames(List<String> userIds) async {
     try {
       final List<String> usernames = [];
 
@@ -128,6 +129,28 @@ class GameInfoState extends ChangeNotifier {
     }
   }
 
+  Future<List<String>> fetchSelectedPlayersForList(String selectedTitle) async {
+    try {
+      final QuerySnapshot snapshot = await _firestore
+          .collection(GAMES)
+          .where(TITLE, isEqualTo: selectedTitle)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        _selectedPlayerUIds =
+            List<String>.from(snapshot.docs.first[JOINEDPLAYERS]);
+
+        return _selectedPlayers = await fetchUserNames(_selectedPlayerUIds);
+      } else {
+        return _selectedPlayers =
+            []; // Clear the list if no matching document is found
+      }
+    } catch (error) {
+      print('Error fetching selected players: $error');
+      return [];
+    }
+  }
+
   Future<void> fetchSelectedPlayers(String selectedTitle) async {
     try {
       final QuerySnapshot snapshot = await _firestore
@@ -139,7 +162,7 @@ class GameInfoState extends ChangeNotifier {
         _selectedPlayerUIds =
             List<String>.from(snapshot.docs.first[JOINEDPLAYERS]);
 
-        _selectedPlayers = await _fetchUserNames(_selectedPlayerUIds);
+        _selectedPlayers = await fetchUserNames(_selectedPlayerUIds);
       } else {
         _selectedPlayers =
             []; // Clear the list if no matching document is found
@@ -187,14 +210,8 @@ class GameInfoState extends ChangeNotifier {
       // Notify listeners that the operation is completed
       _isLoading = false;
       notifyListeners();
-      bool conditionToStopPopping(Route<dynamic> route) {
-        // Check if the route is of type MyRoute
-        return route.settings.name == AppNavBar.screen;
-      }
 
-      Navigator.popUntil(context, (route) {
-        return conditionToStopPopping(route);
-      });
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (error) {
       print('Error sending game highlights: $error');
       // Handle error

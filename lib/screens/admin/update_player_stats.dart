@@ -93,9 +93,17 @@ class UpdatePlayerStats extends ConsumerWidget {
                     }),
                     ScoreInputWidget(
                       label: 'Goals Scored This Game',
-                      ctrText: gameInfoPro.goalsCurrentGame.toString(),
-                      incrementTap: () => gameInfoPro.goalsCurrentGameAdd(),
-                      decrementTap: () => gameInfoPro.goalsCurrentGameRemove(),
+                      goalsCtr: ref.watch(currentGameGoalsCtr),
+                      incrementTap: () {
+                        final controller = ref.watch(currentGameGoalsCtr);
+                        if (controller.text.isNotEmpty) {
+                          int currentValue = int.parse(controller.text);
+                          int result = currentValue++; // Example: Addition
+                          controller.text = result.toString();
+                        }
+                      },
+                      decrementTap: () =>
+                          int.parse(ref.watch(currentGameGoalsCtr).text) - 1,
                     ),
                     TextFeildWithBorder(
                       controller: urlCtr,
@@ -117,18 +125,24 @@ class UpdatePlayerStats extends ConsumerWidget {
                       onPressed: () {
                         // List<Map<String, dynamic>> userData = [];
 
-                        uPStatsPro.addNewGameData({
-                          GAME_TITLE: gameInfoPro.selectGame,
-                          GOALS_SCORED: gameInfoPro.goalsCurrentGame,
-                          VIDEO_URL: uPStatsPro.videoUrls,
-                        }, gameInfoPro.selectUid);
-                        uPStatsPro.updatePlayerStats(
-                          gameInfoPro.selectUid!,
-                          context,
-                          totalGames: uPStatsPro.updatedTotalGames,
-                          totalGoals: uPStatsPro.updatedTotalGoals,
-                          aveGoals: uPStatsPro.updateAveGoals(),
-                        );
+                        if (uPStatsPro.videoUrls.isNotEmpty) {
+                          uPStatsPro.addNewGameData({
+                            GAME_TITLE: gameInfoPro.selectGame,
+                            GOALS_SCORED:
+                                int.parse(ref.watch(currentGameGoalsCtr).text),
+                            VIDEO_URL: uPStatsPro.videoUrls,
+                          }, gameInfoPro.selectUid);
+                          uPStatsPro.updatePlayerStats(
+                            gameInfoPro.selectUid!,
+                            context,
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Data is updated")));
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(
+                                  "Please Provider one Highlight link atleast")));
+                        }
                       },
                       size: size,
                       fontColor: kPrimaryColor,
@@ -141,6 +155,37 @@ class UpdatePlayerStats extends ConsumerWidget {
             ),
     );
   }
+
+  // void _performOperation(String operator, WidgetRef ref) {
+  //   final text = ref.watch(currentGameGoalsCtr).text.trim();
+  //   if (text.isNotEmpty) {
+  //     final number = int.parse(text);
+  //     switch (operator) {
+  //       case '+':
+  //           _result += number;
+  //         break;
+  //       case '-':
+  //         setState(() {
+  //           _result -= number;
+  //         });
+  //         break;
+  //       case '*':
+  //         setState(() {
+  //           _result *= number;
+  //         });
+  //         break;
+  //       case '/':
+  //         setState(() {
+  //           _result ~/= number;
+  //         });
+  //         break;
+  //       default:
+  //         break;
+  //     }
+  //     _controller
+  //         .clear(); // Clear the text field after performing the operation
+  //   }
+  // }
 
   Column buildLinkTiles(String label) {
     return Column(

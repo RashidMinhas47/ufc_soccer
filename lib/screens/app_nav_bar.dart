@@ -39,6 +39,8 @@ class _AppNavBarState extends ConsumerState<AppNavBar> {
             currentIndex = index;
           });
         },
+        useLegacyColorScheme: false,
+        type: BottomNavigationBarType.fixed,
         selectedLabelStyle: GoogleFonts.poppins(),
         unselectedLabelStyle: GoogleFonts.poppins(),
         unselectedItemColor: Colors.black,

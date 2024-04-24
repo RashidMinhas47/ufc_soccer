@@ -223,6 +223,7 @@ class VoteForNextGame extends StatelessWidget {
                   spots: game.maxPlayer.toString(),
                 ),
                 PlayersListTable(
+                  gameTitle: game.title,
                   playerNames: game.joinedPlayerNames,
                 ),
                 game.remainingTime <= 1
@@ -293,6 +294,11 @@ class VoteForNextGame extends StatelessWidget {
                                   stream: gamePro.isUserAlreadyVotedStream(
                                       game.id, userData.userUid),
                                   builder: (context, snapshot) {
+                                    //  final  querySnapshot= FirebaseFirestore.instance
+                                    //       .collection(GAMES)
+                                    //       .where( userData.userUid,isEqualTo: )
+                                    //       .get();
+
                                     if (game.remainingTime <= 1) {
                                       Navigator.pop(context);
                                     }
@@ -304,8 +310,8 @@ class VoteForNextGame extends StatelessWidget {
                                       return Text('You have got Some Error');
                                     } else {
                                       return Container(
-                                        child: snapshot.hasData && value! ||
-                                                gamePro.isVoted
+                                        child: gamePro.voters
+                                                .contains(userData.userUid)
                                             ? Padding(
                                                 padding:
                                                     const EdgeInsets.all(13.0),

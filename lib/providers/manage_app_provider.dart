@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ufc_soccer/screens/app_nav_bar.dart';
 import 'package:ufc_soccer/utils/firebase_const.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 final appSettingsProvider =
     ChangeNotifierProvider((ref) => AppSettingsProvider());
@@ -119,6 +120,7 @@ class AppSettingsProvider extends ChangeNotifier {
 
       // Update app access code if not empty
       if (appAccessCode.isNotEmpty) {
+        setAppAccessCode(appAccessCode);
         await settingsDoc.update({
           APPACCESSCODE: appAccessCode,
         });
@@ -128,12 +130,59 @@ class AppSettingsProvider extends ChangeNotifier {
         return route.settings.name == AppNavBar.screen;
       }
 
-      Navigator.popUntil(context, (route) {
-        return conditionToStopPopping(route);
-      });
+      // Navigator.popUntil(context, (route) {
+      //   return conditionToStopPopping(route);
+      // });
+      Navigator.of(context).popUntil((route) => route.isFirst);
       print('App settings updated successfully!');
     } catch (error) {
       print('Error updating app settings: $error');
     }
   }
+
+  String appCode = '';
+  Future<String?> getAppAccessCode() async {
+    DatabaseReference reference =
+        FirebaseDatabase.instance.ref().child(APPACCESSCODE);
+
+    try {
+      // Retrieve the value of the appAccessCode variable
+      final snapshot = await reference.get();
+
+      // Extract the value from the snapshot
+      String? accessCode = snapshot.value.toString();
+      appCode = accessCode;
+      return accessCode;
+    } catch (e) {
+      print('Error fetching app access code: $e');
+      return null;
+    }
+  }
+
+  // Future<String?> getAppAccessCode() async {
+  //   DatabaseReference reference = FirebaseDatabase.instance.reference();
+
+  //   // Retrieve the value of the appAccessCode variable
+  //   DataSnapshot snapshot = reference.child(APPACCESSCODE).once();
+
+  //   // Extract the value from the snapshot
+  //   String? accessCode = snapshot.value;
+
+  //   return accessCode;
+  // }
+
+  void setAppAccessCode(String accessCode) {
+    try {
+      DatabaseReference reference = FirebaseDatabase.instance.ref();
+      reference.child(APPACCESSCODE).set(accessCode);
+
+      print(
+          "...............##########>>>>>>>>>#######..........$getAppAccessCode().............######<<<<<<<<<#######");
+    } catch (e) {}
+  }
+}
+
+class AppCode {
+  String code;
+  AppCode({required this.code});
 }

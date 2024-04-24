@@ -80,11 +80,11 @@ class GameInfoScreen extends ConsumerWidget {
                       label: 'Blue Team Score',
                       incrementTap: () => gameInfoPro.blueTeamScoreAdd(),
                       decrementTap: () => gameInfoPro.blueTeamScoreRemove(),
-                      ctrText: gameInfoPro.blueTeamScore.toString(),
+                      goalsCtr: ref.watch(blueTeamGoalCtr),
                     ),
                     ScoreInputWidget(
                       label: 'Red Team Score',
-                      ctrText: gameInfoPro.redTeamScore.toString(),
+                      goalsCtr: ref.watch(redTeamGoalCtr),
                       incrementTap: () => gameInfoPro.redTeamScoreAdd(),
                       decrementTap: () => gameInfoPro.redTeamScoreRemove(),
                     ),

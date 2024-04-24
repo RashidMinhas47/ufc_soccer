@@ -47,16 +47,9 @@ class UpdatePlayerStatsProvider extends ChangeNotifier {
       updateTotalGames();
 
       _defaultGameData.add(newGame);
-      final DocumentReference userRef =
-          FirebaseFirestore.instance.collection(USERS).doc(userId);
+      // final DocumentReference userRef =
+      //     FirebaseFirestore.instance.collection(USERS).doc(userId);
 
-      await userRef.update({
-        PLAYER_STATS: {
-          TOTAL_GAMES: _updatedTotalGames,
-          TOTAL_GOALS: _updatedAveGoals,
-          AVERAGE_GOALS: _updatedAveGoals
-        }
-      });
       print("Added new game data: $_defaultGameData");
       notifyListeners();
     } else {
@@ -82,32 +75,40 @@ class UpdatePlayerStatsProvider extends ChangeNotifier {
     return avgGoals;
   }
 
-  Future<void> updatePlayerStats(String userId, BuildContext context,
-      {required int totalGoals,
-      required int totalGames,
-      required double aveGoals}) async {
+  Future<void> updatePlayerStats(
+    String userId,
+    BuildContext context,
+  ) async {
     try {
       isloading = true;
       final DocumentReference userRef =
           FirebaseFirestore.instance.collection(USERS).doc(userId);
-
-      await userRef.update({
+      int totalGoals = 0; // Initialize total goals counter
+      for (Map<String, dynamic> gameData in defaultGameData) {
+        // Access the GOALS_SCORED property of each map
+        int goalsScored = gameData[GOALS_SCORED];
+        print('Goals scored: $goalsScored');
+        totalGoals += goalsScored; // Add goals scored to total goals
+      }
+      print('Total goals: $totalGoals');
+      await userRef.set({
         USER_GAME_STATS: defaultGameData,
         PLAYER_STATS: {
           TOTAL_GOALS: totalGoals,
-          TOTAL_GAMES: totalGames,
-          AVERAGE_GOALS: aveGoals
-        }
-      });
+          TOTAL_GAMES: defaultGameData.length,
+          AVERAGE_GOALS: totalGoals / defaultGameData.length
+        },
+      }, SetOptions(merge: true));
       notifyListeners();
       bool conditionToStopPopping(Route<dynamic> route) {
         // Check if the route is of type MyRoute
         return route.settings.name == AppNavBar.screen;
       }
 
-      Navigator.popUntil(context, (route) {
-        return conditionToStopPopping(route);
-      });
+      // Navigator.popUntil(context, (route) {
+      //   return conditionToStopPopping(route);
+      // });
+      Navigator.of(context).popUntil((route) => route.isFirst);
       isloading = false;
       print('User data updated successfully.');
     } catch (error) {
@@ -142,6 +143,7 @@ class UpdatePlayerStatsProvider extends ChangeNotifier {
 
         if (userData != null) {
           // Update class variables with values from user data
+
           _updatedTotalGames = userData[PLAYER_STATS][TOTAL_GAMES] ?? 0;
           _updatedTotalGoals = userData[PLAYER_STATS][TOTAL_GOALS] ?? 0;
           _updatedAveGoals =

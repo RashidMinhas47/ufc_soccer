@@ -6,8 +6,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ufc_soccer/models/current_user_model.dart';
 import 'package:ufc_soccer/providers/user_data.dart';
 import 'package:ufc_soccer/screens/admin/game_admin.dart';
+import 'package:ufc_soccer/screens/home/pages/join_&_leave_game.dart';
 import 'package:ufc_soccer/screens/profile_screens/game_videos_screen.dart';
 import 'package:ufc_soccer/screens/profile_screens/views/list_of_videos.dart';
 import 'package:ufc_soccer/utils/constants.dart';
@@ -37,7 +39,7 @@ class ProfileScreen extends ConsumerWidget {
           centerTitle: true,
         ),
         body: Consumer(builder: (context, ref, child) {
-          ref.watch(userDataProvider).fetchUserData();
+          // ref.watch(userDataProvider).fetchUserData();
 
           return SingleChildScrollView(
             child: Column(
@@ -60,31 +62,42 @@ class ProfileScreen extends ConsumerWidget {
                       // );
                     }),
 
-                Consumer(
-                  builder: (context, ref, child) {
-                    final userD =
-                        ref.watch(userDataProvider); // Access the user data
+                Consumer(builder: (context, ref, child) {
+                  // final userListAsyncValue = ref.watch(userStreamProvider);
+                  // return userListAsyncValue.when(
+                  //     data: (data) {
+                  //       Future.delayed(Duration(seconds: 4))
+                  //           .whenComplete(() {});
+                  //       return UserProfileCard(
+                  //         image: data.imageUrl,
+                  //         label: "${data.fullName}[${data.jersyNumber}]",
+                  //         subtitle: data.nickName,
+                  //         subtitle2: data.positions.join(', '),
+                  //       );
+                  //     },
+                  //     loading: () => progressWidget,
+                  //     error: (error, stackTrace) =>
+                  //         Center(child: Text('Error: $error')));
 
-                    return UserProfileCard(
-                      image: userD.imageUrl,
-                      label: "${userD.fullName}[${userD.jersyNumber}]",
-                      subtitle: userD.nickname,
-                      subtitle2: userD.positions.join(', '),
-                    );
-                  },
-                ),
+                  final userD =
+                      ref.watch(userDataProvider); // Access the user data
+
+                  return UserProfileCard(
+                    image: userD.imageUrl,
+                    label: "${userD.fullName}[${userD.jersyNumber}]",
+                    subtitle: userD.nickname,
+                    subtitle2: userD.positions.join(', '),
+                  );
+                }),
                 const PlayerStatsCard(),
-                // Expanded(child: YourScreen(userId: userD.userUid))
+                SizedBox(
+                    height: 400,
+                    child: UserProfileScreen(
+                      userUid: userD.userUid,
+                    ))
               ],
             ),
           );
         }));
   }
 }
-
-
-//  UserProfileCard(
-//               label: "${userD.state.fullName}[${userD.state.jersyNumber}]",
-//               subtitle: userD.state.nickname,
-//               subtitle2: userD.state.positions.join(', '),
-//             ),

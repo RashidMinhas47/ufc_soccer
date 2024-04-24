@@ -103,24 +103,42 @@ class ManageAppSettings extends ConsumerWidget {
                       style: GoogleFonts.poppins(
                           fontSize: 18, color: kBlackColor.withOpacity(0.5)),
                     ),
-                    TextFeildWithBorder(
-                      paddH: 40,
-                      controller: appAccessCtr,
-                      hintText: 'APP Access Code',
-                    ),
-                    LargeFlatButton(
-                      onPressed: () {
-                        appSettingsPro
-                            .updateAppAccessCode(appAccessCtr.text)
-                            .whenComplete(() =>
-                                appSettingsPro.updateAppSettings(context));
-                        appAccessCtr.clear();
+                    appAccessCtr.when(
+                      data: (controller) {
+                        return Column(
+                          children: [
+                            TextFeildWithBorder(
+                              paddH: 40,
+                              controller: controller,
+                              hintText: 'APP Access Code',
+                            ),
+                            LargeFlatButton(
+                              onPressed: () {
+                                appSettingsPro
+                                    .updateAppAccessCode(controller.text)
+                                    .whenComplete(() => appSettingsPro
+                                        .updateAppSettings(context));
+                                controller.clear();
+                              },
+                              size: size,
+                              fontColor: kPrimaryColor,
+                              label: 'Update App Settings',
+                              backgroundColor: Colors.white.withOpacity(0),
+                            ),
+                          ],
+                        );
                       },
-                      size: size,
-                      fontColor: kPrimaryColor,
-                      label: 'Update App Settings',
-                      backgroundColor: Colors.white.withOpacity(0),
+                      loading: () =>
+                          prograssWidget, // Show loading indicator while data is loading
+                      error: (error, stackTrace) =>
+                          Text('Error: $error'), // Handle error case
                     ),
+                    // TextFeildWithBorder(
+                    //   paddH: 40,
+                    //   controller: appAccessCtr,
+                    //   hintText: 'APP Access Code',
+                    // ),
+
                     const SizedBox(height: 20),
                   ],
                 ),

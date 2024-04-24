@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ufc_soccer/models/current_user_model.dart';
 import 'package:ufc_soccer/providers/user_data.dart';
+import 'package:ufc_soccer/screens/home/pages/join_&_leave_game.dart';
 import 'package:ufc_soccer/utils/constants.dart';
 import 'package:ufc_soccer/widgets/custom_large_btn.dart';
 

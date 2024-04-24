@@ -13,6 +13,7 @@ import 'package:ufc_soccer/screens/home/home_screen.dart';
 import 'package:ufc_soccer/screens/profile_screens/profile_screen.dart';
 import 'package:ufc_soccer/screens/profile_screens/edit_profile_screen.dart';
 import 'package:ufc_soccer/screens/profile_screens/game_videos_screen.dart';
+import 'package:ufc_soccer/screens/profile_screens/views/videos_screen.dart';
 import 'firebase_options.dart';
 import 'screens/authentication_screen.dart';
 

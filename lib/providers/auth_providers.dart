@@ -1,4 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ufc_soccer/providers/manage_app_provider.dart';
+import 'package:ufc_soccer/routes/routing_functions.dart';
+import 'package:ufc_soccer/screens/admin/manage_app.dart';
 import 'package:ufc_soccer/screens/app_nav_bar.dart';
 import 'package:ufc_soccer/screens/auth_check_screen.dart';
 import 'package:ufc_soccer/screens/home/home_screen.dart';
@@ -31,6 +34,7 @@ class SignUpAuthProvider extends ChangeNotifier {
     required TextEditingController? email,
     required TextEditingController? password,
     String? displayName,
+    required AppSettingsProvider appSettingsProvider,
     required String correctCode, // Argument representing the correct code
   }) async {
     _loading = true;
@@ -52,7 +56,10 @@ class SignUpAuthProvider extends ChangeNotifier {
         notifyListeners();
 
         // Check if the provided email matches the correct code
-        if (correctCode == 'ufcsoccer@admin1') {
+        String? actCode = await appSettingsProvider.getAppAccessCode();
+        if (correctCode == actCode) {
+          print(
+              "[[[[[[[[[[[[[[[[[[[[[[........${appSettingsProvider.getAppAccessCode()}]]]]]]]]]]]]]]]]]]]]]]");
           userCredential = await FirebaseAuth.instance
               .createUserWithEmailAndPassword(
                   email: email.text.trim(), password: password.text.trim());
@@ -86,6 +93,15 @@ class SignUpAuthProvider extends ChangeNotifier {
 
           _loading = false;
           notifyListeners();
+        } else if (correctCode == '') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Please provider app access code"),
+            ),
+          );
+
+          _loading = false;
+          notifyListeners();
         } else {
           // Show message if the provided code is incorrect
           ScaffoldMessenger.of(context).showSnackBar(
@@ -93,6 +109,7 @@ class SignUpAuthProvider extends ChangeNotifier {
               content: Text("You've provided an incorrect code."),
             ),
           );
+
           _loading = false;
           notifyListeners();
         }
@@ -122,7 +139,12 @@ class SignInProviderAuth with ChangeNotifier {
   void signOutUser(BuildContext context) {
     final auth = FirebaseAuth.instance;
     auth.signOut();
-    Navigator.restorablePopAndPushNamed(context, AuthCheckScreen.screen);
+    Navigator.pushReplacementNamed(context, AuthCheckScreen.screen);
+    // Navigator.popUntil(
+    //     context,
+    //     (route) =>
+    //         RoutingFuncs.conditionToStopPopping(route, AuthCheckScreen.screen));
+
     notifyListeners();
   }
 
@@ -133,7 +155,7 @@ class SignInProviderAuth with ChangeNotifier {
       required BuildContext context}) async {
     loading = true;
     notifyListeners();
-    if (email.text.trim().isEmpty || password.text.trim().isEmpty) {
+    if (email.text.isEmpty || password.text.isEmpty) {
       AppSnackBar.snackBar(context, "Fill all the Details");
       loading = false;
       notifyListeners();
@@ -147,6 +169,8 @@ class SignInProviderAuth with ChangeNotifier {
         final userCollection = FirebaseFirestore.instance.collection(USERS);
         QuerySnapshot querySnapshot =
             await userCollection.where(UID, isEqualTo: uid).get();
+        loading = false;
+        notifyListeners();
         Navigator.pushReplacementNamed(context, AppNavBar.screen);
         if (querySnapshot.docs.isEmpty) {
         } else if (querySnapshot.docs.isNotEmpty) {

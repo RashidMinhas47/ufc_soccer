@@ -11,12 +11,12 @@ class ScoreInputWidget extends StatelessWidget {
   final String label;
   final VoidCallback incrementTap;
   final VoidCallback decrementTap;
-  final String ctrText;
+  final TextEditingController goalsCtr;
 
   const ScoreInputWidget(
       {super.key,
       required this.label,
-      required this.ctrText,
+      required this.goalsCtr,
       required this.incrementTap,
       required this.decrementTap});
 
@@ -45,7 +45,7 @@ class ScoreInputWidget extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: TextEditingController(text: ctrText),
+                    controller: goalsCtr,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
                       border: InputBorder.none,

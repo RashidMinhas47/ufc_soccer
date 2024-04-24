@@ -190,14 +190,19 @@ class GameSetupScreen extends ConsumerWidget {
                             timeCountdown: setGamePro.timeCountdown!,
                           )
                               .whenComplete(() {
-                            bool conditionToStopPopping(Route<dynamic> route) {
-                              // Check if the route is of type MyRoute
-                              return route.settings.name == AppNavBar.screen;
-                            }
+                            // bool conditionToStopPopping(Route<dynamic> route) {
+                            //   // Check if the route is of type MyRoute
+                            //   return route.settings.name == AppNavBar.screen;
+                            // }
 
-                            Navigator.popUntil(context, (route) {
-                              return conditionToStopPopping(route);
-                            });
+                            Navigator.of(context)
+                                .popUntil((route) => route.isFirst);
+
+                            // Navigator.popUntil(context, (route) {
+                            //   return conditionToStopPopping(route);
+                            // });
+
+                            // Navigator.pop(context);
                             ref.read(gameTitleCtrPro).clear();
                           });
 

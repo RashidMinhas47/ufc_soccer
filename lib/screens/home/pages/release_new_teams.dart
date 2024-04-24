@@ -43,6 +43,7 @@ class VoteForNextGame2 extends ConsumerWidget {
               spots: 'not define yer', //TODO: latter will come
             ),
             const PlayersListTable(
+              gameTitle: '',
               playerNames: ['hell', 'weel', 'jell'],
             ),
           ],

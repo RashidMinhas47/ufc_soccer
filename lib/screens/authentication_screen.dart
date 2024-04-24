@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:ufc_soccer/providers/manage_app_provider.dart';
 import 'package:ufc_soccer/utils/constants.dart';
 import 'package:ufc_soccer/widgets/sign_up_button.dart';
 import '../providers/auth_providers.dart';
@@ -121,6 +122,8 @@ class _AuthScreenConsumerState extends ConsumerState<AuthScreen> {
                                         ? ref
                                             .read(signUpProvider)
                                             .signUpValidation(
+                                              appSettingsProvider: ref
+                                                  .watch(appSettingsProvider),
                                               context: context,
                                               correctCode: accessCodeController
                                                   .text
@@ -131,7 +134,7 @@ class _AuthScreenConsumerState extends ConsumerState<AuthScreen> {
                                               displayName: nameController.text,
                                             )
                                         : ref
-                                            .read(signInProvider)
+                                            .watch(signInProvider)
                                             .signInValidation(
                                                 context: context,
                                                 email: emailController,
@@ -199,7 +202,7 @@ class _AuthScreenConsumerState extends ConsumerState<AuthScreen> {
           isToogleScreen
               ? AuthTextField(
                   hintText: 'Access code',
-                  iconPath: '',
+                  iconPath: AppSvg.eyeIcon,
                   controller: accessCodeController,
                 )
               : sizeBoxShrink,
