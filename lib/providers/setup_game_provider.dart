@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -275,6 +276,17 @@ class SetupGameProvider extends ChangeNotifier {
       print('Error setting up new game: $error');
     }
   }
+}
+
+void sendNotificationToAllUsers(String message) {
+  AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: 10,
+      channelKey: 'basic_channel',
+      title: 'New Data Added',
+      body: message,
+    ),
+  );
 }
 
 timerCountdonw(setupEndTime, newKey) {

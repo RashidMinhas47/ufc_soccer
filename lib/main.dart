@@ -16,6 +16,7 @@ import 'package:ufc_soccer/screens/profile_screens/game_videos_screen.dart';
 import 'package:ufc_soccer/screens/profile_screens/views/videos_screen.dart';
 import 'firebase_options.dart';
 import 'screens/authentication_screen.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,19 @@ void main() async {
   );
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp]); // Allow only portrait orientation
+
+  await AwesomeNotifications().initialize(
+    'resource://drawable/res_app_icon',
+    [
+      NotificationChannel(
+        channelKey: 'basic_channel',
+        channelName: 'Basic notifications',
+        channelDescription: 'Notification channel for basic notifications',
+        defaultColor: Color(0xFF9D50DD),
+        ledColor: Colors.white,
+      ),
+    ],
+  );
 
   runApp(const ProviderScope(child: MyApp()));
 }
